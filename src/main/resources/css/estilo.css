@@ -1,0 +1,191 @@
+/*
+  Folha de estilos do sistema Lista de Compras.
+  Concentramos aqui as cores e as fontes para nao repetir configuracao em cada tela.
+  O Scene Builder le este arquivo e ja mostra as telas com o visual final.
+*/
+
+/* Definimos a cor de fundo e a fonte padrao de todas as telas */
+.tela {
+    -fx-background-color: #F3EEE4;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Usamos este estilo no caminho de navegacao que aparece no topo das telas */
+.trilha {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2F7A48;
+}
+
+/* Titulo principal de cada tela */
+.titulo-tela {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2B2B2B;
+}
+
+/* Texto menor que explica para que serve a tela */
+.subtitulo-tela {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B6B6B;
+}
+
+/* Cartao branco que agrupa os campos de cadastro */
+.cartao {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #E4DED2;
+    -fx-border-radius: 10;
+    -fx-padding: 16;
+}
+
+/* Cada opcao do menu principal e um botao com cara de cartao */
+.cartao-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #E4DED2;
+    -fx-border-radius: 10;
+    -fx-padding: 14 18 14 18;
+    -fx-cursor: hand;
+}
+
+/* Quando passamos o mouse por cima, destacamos a borda da opcao */
+.cartao-menu:hover {
+    -fx-border-color: #2F7A48;
+}
+
+/* Quadrado colorido que fica na frente de cada opcao do menu */
+.icone-menu {
+    -fx-background-color: #2F7A48;
+    -fx-background-radius: 8;
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-alignment: center;
+}
+
+/* Variacao em ambar do icone, usada nas opcoes 2 e 4 do menu */
+.icone-menu-ambar {
+    -fx-background-color: #C8821C;
+}
+
+/* Texto que fica dentro do quadrado do icone */
+.texto-icone {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* Titulo de cada opcao do menu */
+.titulo-opcao {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2B2B2B;
+}
+
+/* Descricao curta de cada opcao do menu */
+.descricao-opcao {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7A7A7A;
+}
+
+/* Rotulo que fica acima dos campos de digitacao */
+.rotulo-campo {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3A3A3A;
+}
+
+/* Deixamos os campos de texto e as listas suspensas com o mesmo acabamento */
+.text-field, .combo-box, .spinner {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #D9D2C4;
+    -fx-background-color: white;
+    -fx-pref-height: 32;
+}
+
+/* Botao verde usado para confirmar inclusoes */
+.botao-principal {
+    -fx-background-color: #2F7A48;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-pref-height: 32;
+    -fx-cursor: hand;
+}
+
+.botao-principal:hover {
+    -fx-background-color: #276539;
+}
+
+/* Botao neutro, usado para acoes secundarias como voltar ou editar */
+.botao-secundario {
+    -fx-background-color: white;
+    -fx-text-fill: #3A3A3A;
+    -fx-border-color: #D9D2C4;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-pref-height: 32;
+    -fx-cursor: hand;
+}
+
+/* Botao de exclusao, em vermelho, para o usuario perceber que a acao e destrutiva */
+.botao-excluir {
+    -fx-background-color: white;
+    -fx-text-fill: #C0392B;
+    -fx-border-color: #E8C4BF;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-pref-height: 32;
+    -fx-cursor: hand;
+}
+
+/* Cabecalho das listagens, do tipo "Listas cadastradas" */
+.titulo-secao {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2B2B2B;
+}
+
+/* Contador que mostra quantos registros existem */
+.contador {
+    -fx-font-size: 11px;
+    -fx-text-fill: #8A8A8A;
+}
+
+/* Tabelas com fundo branco e cantos arredondados */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #E4DED2;
+    -fx-border-radius: 10;
+}
+
+/* Barra escura do rodape da tela de montagem da lista, com os totalizadores */
+.barra-totais {
+    -fx-background-color: #2B2B2B;
+    -fx-background-radius: 8;
+    -fx-padding: 12 20 12 20;
+}
+
+/* Rotulo pequeno dos totalizadores */
+.rotulo-total {
+    -fx-font-size: 10px;
+    -fx-text-fill: #B5B5B5;
+}
+
+/* Valor dos totalizadores, em destaque */
+.valor-total {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7FD19A;
+}
+
+/* Area cinza que reservamos para a foto do produto */
+.area-foto {
+    -fx-background-color: #F0EBE1;
+    -fx-background-radius: 8;
+    -fx-border-color: #D9D2C4;
+    -fx-border-radius: 8;
+    -fx-alignment: center;
+}

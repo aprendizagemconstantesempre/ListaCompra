@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Tela de cadastro dos produtos.
+    Atende aos requisitos RF010 (cadastrar), RF011 (consultar),
+    RF012 (editar) e RF013 (excluir).
+-->
+<VBox xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.listacompras.controller.CadastroProdutoController"
+      stylesheets="@../css/estilo.css" styleClass="tela"
+      spacing="6" prefWidth="900" prefHeight="650">
+
+    <padding>
+        <Insets top="28" right="36" bottom="28" left="36" />
+    </padding>
+
+    <Label text="MENU &gt; CADASTROS" styleClass="trilha" />
+    <Label text="Cadastrar produto" styleClass="titulo-tela" />
+    <Label text="Guarde a foto, a descricao e a unidade em que costuma comprar cada produto."
+           styleClass="subtitulo-tela" />
+
+    <Region prefHeight="10" />
+
+    <!-- Cartao com a previa da foto e os campos do produto -->
+    <HBox styleClass="cartao" spacing="16" alignment="CENTER_LEFT">
+
+        <!-- Area reservada para a foto do produto (NF006) -->
+        <VBox spacing="6" alignment="CENTER">
+            <StackPane styleClass="area-foto" prefWidth="80" prefHeight="60">
+                <ImageView fx:id="previaFoto" fitWidth="70" fitHeight="52" preserveRatio="true" />
+            </StackPane>
+            <Button fx:id="btnEscolherFoto" text="Escolher foto" onAction="#escolherFoto"
+                    styleClass="botao-secundario" prefWidth="100" />
+        </VBox>
+
+        <!-- Campo da descricao, que cresce junto com a janela -->
+        <VBox spacing="6" HBox.hgrow="ALWAYS">
+            <Label text="Descricao do produto *" styleClass="rotulo-campo" />
+            <TextField fx:id="campoDescricao" promptText="Ex: Arroz branco 5kg" />
+        </VBox>
+
+        <!-- Lista suspensa com as unidades de medida citadas no requisito RF010 -->
+        <VBox spacing="6">
+            <Label text="Unidade de medida" styleClass="rotulo-campo" />
+            <ComboBox fx:id="comboUnidade" prefWidth="150" value="Unidade">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Unidade" />
+                        <String fx:value="Quilograma" />
+                        <String fx:value="Litro" />
+                        <String fx:value="Pacote" />
+                        <String fx:value="Caixa" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </VBox>
+
+        <VBox spacing="6">
+            <!-- Rotulo invisivel apenas para alinhar o botao com os campos ao lado -->
+            <Label text=" " styleClass="rotulo-campo" />
+            <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarProduto"
+                    styleClass="botao-principal" prefWidth="120" />
+        </VBox>
+
+    </HBox>
+
+    <Region prefHeight="14" />
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Produtos cadastrados" styleClass="titulo-secao" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="rotuloContador" text="0 produto(s)" styleClass="contador" />
+    </HBox>
+
+    <!--
+        Mostramos os produtos em formato de cartoes, como no mockup do documento.
+        O controller cria um cartao para cada produto e adiciona dentro deste FlowPane.
+        O cartao abaixo fica aqui so como modelo visual: podemos apaga-lo quando
+        o metodo que monta os cartoes estiver pronto.
+    -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cartao">
+        <content>
+            <FlowPane fx:id="painelProdutos" hgap="14" vgap="14" prefWrapLength="760">
+                <VBox styleClass="cartao" spacing="6" prefWidth="170">
+                    <StackPane styleClass="area-foto" prefHeight="90" />
+                    <Label text="Arroz branco 5kg" styleClass="titulo-opcao" />
+                    <Label text="Pacote" styleClass="descricao-opcao" />
+                </VBox>
+            </FlowPane>
+        </content>
+    </ScrollPane>
+
+    <Region prefHeight="10" />
+
+    <HBox spacing="10">
+        <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
+                styleClass="botao-secundario" prefWidth="140" />
+    </HBox>
+
+</VBox>

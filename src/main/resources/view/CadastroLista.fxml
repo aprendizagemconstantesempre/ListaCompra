@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Tela de cadastro das listas de compras.
+    Atende aos requisitos RF002 (cadastrar), RF003 (consultar),
+    RF004 (editar) e RF005 (excluir).
+-->
+<VBox xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.listacompras.controller.CadastroListaController"
+      stylesheets="@../css/estilo.css" styleClass="tela"
+      spacing="6" prefWidth="900" prefHeight="650">
+
+    <padding>
+        <Insets top="28" right="36" bottom="28" left="36" />
+    </padding>
+
+    <!-- Caminho de navegacao, para o usuario saber onde esta dentro do sistema -->
+    <Label text="MENU &gt; CADASTROS" styleClass="trilha" />
+    <Label text="Cadastrar lista de compras" styleClass="titulo-tela" />
+    <Label text="De um nome as suas listas para depois monta-las com produtos e estabelecimentos."
+           styleClass="subtitulo-tela" />
+
+    <Region prefHeight="10" />
+
+    <!-- Cartao branco com o campo de digitacao e o botao de inclusao -->
+    <VBox styleClass="cartao" spacing="6">
+        <Label text="Nome da lista *" styleClass="rotulo-campo" />
+        <HBox spacing="10">
+            <!-- Deixamos o campo crescer para ocupar todo o espaco livre da linha -->
+            <TextField fx:id="campoNomeLista" promptText="Ex: Compras da semana" HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarLista"
+                    styleClass="botao-principal" prefWidth="130" />
+        </HBox>
+    </VBox>
+
+    <Region prefHeight="14" />
+
+    <!-- Cabecalho da listagem, com o titulo a esquerda e o contador a direita -->
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Listas cadastradas" styleClass="titulo-secao" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="rotuloContador" text="0 lista(s)" styleClass="contador" />
+    </HBox>
+
+    <!-- Tabela que mostra todas as listas ja cadastradas (RF003) -->
+    <TableView fx:id="tabelaListas" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colunaNomeLista" text="NOME DA LISTA" prefWidth="700" />
+        </columns>
+    </TableView>
+
+    <Region prefHeight="10" />
+
+    <!-- Acoes que trabalham sobre a linha selecionada na tabela -->
+    <HBox spacing="10">
+        <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
+                styleClass="botao-secundario" prefWidth="140" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnEditar" text="Editar selecionada" onAction="#editarLista"
+                styleClass="botao-secundario" prefWidth="160" />
+        <Button fx:id="btnExcluir" text="Excluir selecionada" onAction="#excluirLista"
+                styleClass="botao-excluir" prefWidth="160" />
+    </HBox>
+
+</VBox>

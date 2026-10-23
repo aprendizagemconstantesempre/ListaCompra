@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Tela de cadastro dos estabelecimentos.
+    Atende aos requisitos RF006 (cadastrar), RF007 (consultar),
+    RF008 (editar) e RF009 (excluir).
+-->
+<VBox xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.listacompras.controller.CadastroEstabelecimentoController"
+      stylesheets="@../css/estilo.css" styleClass="tela"
+      spacing="6" prefWidth="900" prefHeight="650">
+
+    <padding>
+        <Insets top="28" right="36" bottom="28" left="36" />
+    </padding>
+
+    <Label text="MENU &gt; CADASTROS" styleClass="trilha" />
+    <Label text="Cadastrar estabelecimento" styleClass="titulo-tela" />
+    <Label text="Informe onde voce costuma comprar e em quais dias ha promocao."
+           styleClass="subtitulo-tela" />
+
+    <Region prefHeight="10" />
+
+    <VBox styleClass="cartao" spacing="10">
+        <Label text="Nome do estabelecimento *" styleClass="rotulo-campo" />
+        <TextField fx:id="campoNomeEstabelecimento" promptText="Ex: Mercado Central" prefWidth="340" maxWidth="340" />
+
+        <Label text="Dias de promocao" styleClass="rotulo-campo" />
+        <!--
+            Usamos ToggleButton em vez de Button porque o requisito permite
+            escolher mais de um dia. Cada botao fica pressionado quando selecionado.
+        -->
+        <HBox spacing="8">
+            <ToggleButton fx:id="btnDomingo" text="Dom" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnSegunda" text="Seg" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnTerca" text="Ter" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnQuarta" text="Qua" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnQuinta" text="Qui" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnSexta" text="Sex" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnSabado" text="Sab" styleClass="botao-secundario" prefWidth="58" />
+        </HBox>
+
+        <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarEstabelecimento"
+                styleClass="botao-principal" prefWidth="130" />
+    </VBox>
+
+    <Region prefHeight="14" />
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Estabelecimentos cadastrados" styleClass="titulo-secao" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="rotuloContador" text="0 estabelecimento(s)" styleClass="contador" />
+    </HBox>
+
+    <!-- Listagem com o nome e os dias de promocao de cada estabelecimento (RF007) -->
+    <TableView fx:id="tabelaEstabelecimentos" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colunaNome" text="NOME" prefWidth="380" />
+            <TableColumn fx:id="colunaDias" text="DIAS DE PROMOCAO" prefWidth="320" />
+        </columns>
+    </TableView>
+
+    <Region prefHeight="10" />
+
+    <HBox spacing="10">
+        <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
+                styleClass="botao-secundario" prefWidth="140" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnEditar" text="Editar selecionado" onAction="#editarEstabelecimento"
+                styleClass="botao-secundario" prefWidth="160" />
+        <Button fx:id="btnExcluir" text="Excluir selecionado" onAction="#excluirEstabelecimento"
+                styleClass="botao-excluir" prefWidth="160" />
+    </HBox>
+
+</VBox>

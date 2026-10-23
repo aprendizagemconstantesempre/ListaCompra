@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Tela principal do sistema (RF001).
+    Montamos aqui o menu com as cinco opcoes previstas no documento de requisitos.
+    Cada botao chama um metodo do controller, que e quem troca a tela exibida.
+-->
+<VBox xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.listacompras.controller.MenuPrincipalController"
+      stylesheets="@../css/estilo.css" styleClass="tela"
+      alignment="TOP_CENTER" spacing="10" prefWidth="900" prefHeight="650">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40" />
+    </padding>
+
+    <!-- Cabecalho com o nome e a proposta do sistema -->
+    <VBox maxWidth="640" spacing="4">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <StackPane styleClass="icone-menu">
+                <Label text="LC" styleClass="texto-icone" />
+            </StackPane>
+            <Label text="Lista de Compras" styleClass="titulo-tela" />
+        </HBox>
+        <Label text="Organize suas compras por estabelecimento e nunca mais esqueca nada."
+               styleClass="subtitulo-tela" />
+    </VBox>
+
+    <!-- Espaco em branco entre o cabecalho e as opcoes do menu -->
+    <Region prefHeight="14" />
+
+    <!-- Opcao 1: leva para a tela de cadastro das listas (RF002) -->
+    <Button fx:id="btnCadastrarLista" onAction="#abrirCadastroLista"
+            styleClass="cartao-menu" maxWidth="640" alignment="CENTER_LEFT">
+        <graphic>
+            <HBox spacing="14" alignment="CENTER_LEFT" prefWidth="570">
+                <StackPane styleClass="icone-menu">
+                    <Label text="1" styleClass="texto-icone" />
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="1. Cadastrar lista de compras" styleClass="titulo-opcao" />
+                    <Label text="Dar nome as suas listas" styleClass="descricao-opcao" />
+                </VBox>
+                <!-- Esta regiao cresce e empurra a seta para a direita do cartao -->
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="&gt;" styleClass="descricao-opcao" />
+            </HBox>
+        </graphic>
+    </Button>
+
+    <!-- Opcao 2: leva para a tela de cadastro de estabelecimentos (RF006) -->
+    <Button fx:id="btnCadastrarEstabelecimento" onAction="#abrirCadastroEstabelecimento"
+            styleClass="cartao-menu" maxWidth="640" alignment="CENTER_LEFT">
+        <graphic>
+            <HBox spacing="14" alignment="CENTER_LEFT" prefWidth="570">
+                <StackPane styleClass="icone-menu, icone-menu-ambar">
+                    <Label text="2" styleClass="texto-icone" />
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="2. Cadastrar estabelecimento" styleClass="titulo-opcao" />
+                    <Label text="Mercados, farmacias e mais" styleClass="descricao-opcao" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="&gt;" styleClass="descricao-opcao" />
+            </HBox>
+        </graphic>
+    </Button>
+
+    <!-- Opcao 3: leva para a tela de cadastro de produtos (RF010) -->
+    <Button fx:id="btnCadastrarProduto" onAction="#abrirCadastroProduto"
+            styleClass="cartao-menu" maxWidth="640" alignment="CENTER_LEFT">
+        <graphic>
+            <HBox spacing="14" alignment="CENTER_LEFT" prefWidth="570">
+                <StackPane styleClass="icone-menu">
+                    <Label text="3" styleClass="texto-icone" />
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="3. Cadastrar produto" styleClass="titulo-opcao" />
+                    <Label text="Foto, descricao e unidade" styleClass="descricao-opcao" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="&gt;" styleClass="descricao-opcao" />
+            </HBox>
+        </graphic>
+    </Button>
+
+    <!-- Opcao 4: leva para a tela onde a lista e realmente montada (RF014) -->
+    <Button fx:id="btnCriarLista" onAction="#abrirCriarLista"
+            styleClass="cartao-menu" maxWidth="640" alignment="CENTER_LEFT">
+        <graphic>
+            <HBox spacing="14" alignment="CENTER_LEFT" prefWidth="570">
+                <StackPane styleClass="icone-menu, icone-menu-ambar">
+                    <Label text="4" styleClass="texto-icone" />
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="4. Criar lista de compras" styleClass="titulo-opcao" />
+                    <Label text="Associar produtos a um local" styleClass="descricao-opcao" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="&gt;" styleClass="descricao-opcao" />
+            </HBox>
+        </graphic>
+    </Button>
+
+    <!-- Opcao 5: encerra a aplicacao (RF018) -->
+    <Button fx:id="btnSair" onAction="#sairDoSistema"
+            styleClass="cartao-menu" maxWidth="640" alignment="CENTER_LEFT">
+        <graphic>
+            <HBox spacing="14" alignment="CENTER_LEFT" prefWidth="570">
+                <StackPane styleClass="icone-menu">
+                    <Label text="5" styleClass="texto-icone" />
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="5. Sair do sistema" styleClass="titulo-opcao" />
+                    <Label text="Encerrar a aplicacao" styleClass="descricao-opcao" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="&gt;" styleClass="descricao-opcao" />
+            </HBox>
+        </graphic>
+    </Button>
+
+</VBox>
