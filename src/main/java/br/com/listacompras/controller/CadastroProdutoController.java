@@ -1,5 +1,6 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,12 +41,14 @@ public class CadastroProdutoController implements Initializable {
     private void escolherFoto(ActionEvent evento) {
         // Proximo passo (NF006): abrir um FileChooser para o usuario escolher
         // a imagem do produto e mostrar a previa no ImageView.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void adicionarProduto(ActionEvent evento) {
         // Proximo passo (RF010): validar a descricao, montar o produto com
         // foto e unidade de medida e criar o cartao correspondente.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML

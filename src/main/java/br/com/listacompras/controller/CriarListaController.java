@@ -1,5 +1,6 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -51,16 +52,19 @@ public class CriarListaController implements Initializable {
     private void adicionarItem(ActionEvent evento) {
         // Proximo passo (RF014): montar o item com produto, quantidade e valor,
         // adicionar na tabela e recalcular os totalizadores do rodape.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void editarItem(ActionEvent evento) {
         // Proximo passo (RF016): alterar quantidade ou valor do item selecionado.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void excluirItem(ActionEvent evento) {
         // Proximo passo (RF017): remover o item selecionado e atualizar os totais.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML

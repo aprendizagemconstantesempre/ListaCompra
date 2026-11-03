@@ -1,5 +1,6 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,16 +49,19 @@ public class CadastroEstabelecimentoController implements Initializable {
     private void adicionarEstabelecimento(ActionEvent evento) {
         // Proximo passo (RF006): ler o nome, descobrir quais botoes de dia estao
         // selecionados e gravar o estabelecimento com essa lista de dias.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void editarEstabelecimento(ActionEvent evento) {
         // Proximo passo (RF008): alterar nome e dias do estabelecimento selecionado.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void excluirEstabelecimento(ActionEvent evento) {
         // Proximo passo (RF009): excluir o estabelecimento selecionado na tabela.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML

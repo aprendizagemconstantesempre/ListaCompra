@@ -1,5 +1,6 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -43,16 +44,19 @@ public class CadastroListaController implements Initializable {
     private void adicionarLista(ActionEvent evento) {
         // Proximo passo (RF002): validar o campo obrigatorio (NF005),
         // criar a lista e atualizar a tabela e o contador.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void editarLista(ActionEvent evento) {
         // Proximo passo (RF004): pegar a linha selecionada na tabela e alterar o nome.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
     private void excluirLista(ActionEvent evento) {
         // Proximo passo (RF005): remover da tabela a lista que estiver selecionada.
+        Mensagem.emDesenvolvimento();
     }
 
     @FXML
