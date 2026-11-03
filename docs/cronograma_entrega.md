@@ -1,7 +1,7 @@
 # Cronograma de entrega — Lista de Compras (JavaFX)
 
 **Prazo:** segunda-feira, 09/11/2026, 23:59
-**Revisado em:** 02/11/2026 (faltam 7 dias)
+**Revisado em:** 02/11/2026 · **Andamento atualizado em:** 03/11/2026 (faltam 6 dias)
 
 O sistema atende a **dois trabalhos ao mesmo tempo**:
 
@@ -41,15 +41,17 @@ documento de requisitos (RN010).
 
 ---
 
-## 2. Onde estamos (02/11)
+## 2. Onde estamos (03/11)
 
 | Item | Situação |
 |---|---|
-| `pom.xml` com JavaFX 21 e `Main` → `App` | Pronto, **sem commit** |
-| 5 telas FXML com CSS, ligadas aos controllers | Visual pronto |
-| `Navegador.abrir(...)` | Troca de tela, mas **não passa dados** |
-| Controllers | Só o esqueleto ("Próximo passo...") |
-| Model, herança, polimorfismo, gravação em JSON, validações e confirmações | **Nada feito** |
+| `pom.xml` com JavaFX 21 e `Main` → `App` | ✅ Pronto (`fb6cd69`) |
+| 5 telas FXML com CSS, ligadas aos controllers | ✅ Visual pronto |
+| Model: `Cadastro` e filhas, `ItemLista`, `UnidadeMedida`, `ValidacaoException`, `Repositorio` | ✅ Pronto (`3f62c1a`), `TesteModel` 52/52 OK |
+| `util/Formatador` (R$ e quantidade) e `util/Mensagem` (janela de aviso) | ✅ Pronto (`3f62c1a`) |
+| Navegação Menu ↔ telas e Sair | ✅ Pronta; os 9 botões sem função mostram "Função em desenvolvimento..." (`3f62c1a`) |
+| `Navegador.abrir(...)` | Troca de tela, mas **ainda não passa dados** (Fase 2) |
+| Controllers ligados ao `Repositorio`, confirmações e gravação em JSON | **A fazer** (Fases 2 a 4) |
 
 ### Pontos em que as telas atuais não batem com a análise
 
@@ -130,16 +132,17 @@ O Aguinaldo entrega o Model **primeiro** (até terça), porque as telas dependem
 
 ## 5. Cronograma por fase
 
-| Fase | Data | O que fazer | Pronto quando… |
-|---|---|---|---|
-| **0 — Preparação** | Seg 02/11 | Commitar `pom.xml` e `Main.java`; confirmar que o app abre no IntelliJ; combinar a divisão com o grupo e mandar os dois PDFs para todos | Todos com o projeto rodando |
-| **1 — Base (Model)** | Ter 03/11 | **Aguinaldo:** `Cadastro`, `ListaCompra`, `Estabelecimento`, `Produto`, `UnidadeMedida`, `ItemLista` e `Repositorio` (ainda sem JSON). **Demais:** no Scene Builder, ajustar as telas: botões na linha (RN080), coluna "Detalhes", imagem padrão | Um `main` de teste cria objetos, imprime `getDetalhe()` e o `temMesmoNome("  compras DA semana ")` dá `true` |
-| **2 — Telas de cadastro + consulta** | Qua 04/11 – Qui 05/11 | **G. Pereira:** Lista + Menu. **G. Miguel:** Estabelecimento + Produto. Tudo com validação de obrigatório (NF005; a mensagem diz qual campo), duplicidade, contador, editar e excluir com confirmação e bloqueio de exclusão em uso. **Aguinaldo:** `Navegador` com passagem de dados e o método de exclusão polimórfico | Cenários H02–H13 passam |
-| **3 — Movimentação (Criar Lista)** | Qui 05/11 – Sex 06/11 | **João Pedro:** combos com os cadastros (RN052), lista obrigatória e estabelecimento opcional, inclusão com soma de quantidade (RN055), tabela filtrada (RN058), subtotal, totalizadores, editar e excluir item. **Aguinaldo:** botão "Montar" passando a lista | H14–H17 passam, incluindo o cálculo de R$ 92,00 → R$ 103,00 → R$ 82,80 |
-| **4 — Persistência JSON + Sair** | Sex 06/11 | **Aguinaldo:** Gson no `pom.xml`, gravar a cada operação (RN074), carregar ao abrir (RN075), criar arquivo vazio (RN076), avisar se estiver corrompido (RN077). **G. Pereira:** Sair com confirmação (RN070) | H18 passa: fechar, abrir e os dados continuam lá |
-| **5 — Teste pelo BDD** | Sáb 07/11 | Rodar **todos** os cenários de H01 a H18 (~60) e marcar OK ou falha numa planilha; conferir que as mensagens são **exatamente** as do BDD; corrigir | Todos os cenários OK (ou as exceções anotadas) |
-| **6 — Documentação + apresentação** | Dom 08/11 | Documento de Java (itens abaixo), roteiro de demonstração, ensaio; commit final | Documento pronto e cada um sabe a sua parte |
-| **Reserva + entrega** | Seg 09/11 (até 23:59) | Folga; empacotar o projeto IntelliJ (sem `target/`, com `dados/` vazio) e entregar | Entregue |
+| Fase | Data | O que fazer | Pronto quando… | Situação |
+|---|---|---|---|---|
+| **0 — Preparação** | Seg 02/11 | Commitar `pom.xml` e `Main.java`; confirmar que o app abre no IntelliJ; combinar a divisão com o grupo e mandar os dois PDFs para todos | Todos com o projeto rodando | ✅ Concluída (`fb6cd69`) |
+| **1 — Base (Model)** | Ter 03/11 | **Aguinaldo:** `Cadastro`, `ListaCompra`, `Estabelecimento`, `Produto`, `UnidadeMedida`, `ItemLista` e `Repositorio` (ainda sem JSON). **Demais:** no Scene Builder, ajustar as telas: botões na linha (RN080), coluna "Detalhes", imagem padrão | Um `main` de teste cria objetos, imprime `getDetalhe()` e o `temMesmoNome("  compras DA semana ")` dá `true` | ✅ Model concluído (`3f62c1a`, teste 52/52). ⚠️ Ajustes no Scene Builder: confirmar com o grupo |
+| *Extra — navegação* | Ter 03/11 | Conferir a navegação e fazer os botões sem função mostrarem "Função em desenvolvimento..." | Todos os botões respondem ao clique | ✅ Concluída (`3f62c1a`, teste 20/20) |
+| **2 — Telas de cadastro + consulta** | Qua 04/11 – Qui 05/11 | **G. Pereira:** Lista + Menu. **G. Miguel:** Estabelecimento + Produto. Tudo com validação de obrigatório (NF005; a mensagem diz qual campo), duplicidade, contador, editar e excluir com confirmação e bloqueio de exclusão em uso. **Aguinaldo:** `Mensagem.confirmar`/`aviso` e `Navegador` com passagem de dados (o método de exclusão polimórfico já está pronto no `Repositorio`) | Cenários H02–H13 passam | ⏳ Próxima |
+| **3 — Movimentação (Criar Lista)** | Qui 05/11 – Sex 06/11 | **João Pedro:** combos com os cadastros (RN052), lista obrigatória e estabelecimento opcional, inclusão com soma de quantidade (RN055), tabela filtrada (RN058), subtotal, totalizadores, editar e excluir item. **Aguinaldo:** botão "Montar" passando a lista | H14–H17 passam, incluindo o cálculo de R$ 92,00 → R$ 103,00 → R$ 82,80 | ⏳ A fazer (as regras já estão no `Repositorio`) |
+| **4 — Persistência JSON + Sair** | Sex 06/11 | **Aguinaldo:** Gson no `pom.xml`, gravar a cada operação (RN074), carregar ao abrir (RN075), criar arquivo vazio (RN076), avisar se estiver corrompido (RN077). **G. Pereira:** Sair com confirmação (RN070) | H18 passa: fechar, abrir e os dados continuam lá | ⏳ A fazer |
+| **5 — Teste pelo BDD** | Sáb 07/11 | Rodar **todos** os cenários de H01 a H18 (~60) e marcar OK ou falha numa planilha; conferir que as mensagens são **exatamente** as do BDD; corrigir | Todos os cenários OK (ou as exceções anotadas) | ⏳ A fazer |
+| **6 — Documentação + apresentação** | Dom 08/11 | Documento de Java (itens abaixo), roteiro de demonstração, ensaio; commit final | Documento pronto e cada um sabe a sua parte | ⏳ A fazer |
+| **Reserva + entrega** | Seg 09/11 (até 23:59) | Folga; empacotar o projeto IntelliJ (sem `target/`, com `dados/` vazio) e entregar | Entregue | — |
 
 ### Documento de entrega de Java (Fase 6)
 
