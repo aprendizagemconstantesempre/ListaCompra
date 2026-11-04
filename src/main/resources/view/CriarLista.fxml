@@ -79,11 +79,12 @@
     <!-- Tabela com os itens ja incluidos na lista escolhida (RF015) -->
     <TableView fx:id="tabelaItens" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colunaProduto" text="PRODUTO" prefWidth="230" />
+            <TableColumn fx:id="colunaProduto" text="PRODUTO" prefWidth="210" />
             <TableColumn fx:id="colunaUnidade" text="UNID." prefWidth="110" />
             <TableColumn fx:id="colunaQuantidade" text="QUANTIDADE" prefWidth="130" />
             <TableColumn fx:id="colunaValorUnitario" text="VALOR UNIT." prefWidth="130" />
             <TableColumn fx:id="colunaSubtotal" text="SUBTOTAL" prefWidth="130" />
+            <TableColumn fx:id="colunaAcoes" text="AÇÕES" prefWidth="150" sortable="false" />
         </columns>
     </TableView>
 
@@ -106,11 +107,6 @@
     <HBox spacing="10">
         <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
                 styleClass="botao-secundario" prefWidth="140" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnEditarItem" text="Editar item" onAction="#editarItem"
-                styleClass="botao-secundario" prefWidth="140" />
-        <Button fx:id="btnExcluirItem" text="Excluir item" onAction="#excluirItem"
-                styleClass="botao-excluir" prefWidth="140" />
     </HBox>
 
 </VBox>

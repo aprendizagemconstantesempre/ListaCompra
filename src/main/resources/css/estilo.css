@@ -189,3 +189,10 @@
     -fx-border-radius: 8;
     -fx-alignment: center;
 }
+
+/* Botoes Editar e Excluir menores, que ficam dentro das linhas e dos cartoes (RN080) */
+.botao-linha {
+    -fx-font-size: 11px;
+    -fx-pref-height: 26;
+    -fx-padding: 0 10 0 10;
+}

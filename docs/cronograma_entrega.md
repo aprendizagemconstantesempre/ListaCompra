@@ -57,9 +57,10 @@ documento de requisitos (RN010).
 
 | Regra | O que muda |
 |---|---|
-| RN080: "editar e excluir na mesma linha do registro" | Hoje os botões ficam no rodapé ("Editar selecionado"). É preciso colocar botões dentro de cada linha da tabela (e em cada cartão de produto) |
+| RN080: "editar e excluir na mesma linha do registro" | ✅ Feito: coluna "AÇÕES" nas tabelas e botões em cada cartão de produto (`util/BotoesLinha`). Os cliques ainda mostram "Função em desenvolvimento..." (Fases 2 e 3) |
 | RN018/033/047/067/070: exclusões e saída pedem confirmação | Criar uma janela de confirmação (`Alert` CONFIRMATION) reutilizável |
-| RN040/RN090: imagem padrão do produto | Incluir uma imagem padrão em `src/main/resources/img/` |
+| RN040/RN090: imagem padrão do produto | ✅ Feito: `src/main/resources/img/produto_padrao.png`, usada na prévia e nos cartões sem foto válida |
+| Coluna "Detalhes" (`getDetalhe()`) | ✅ Feito: coluna "DETALHES" em Lista, "DIAS DE PROMOCAO" em Estabelecimento e unidade no cartão de Produto |
 | RN011/028/042: contador de registros | Já há `rotuloContador` nas telas; falta preencher |
 
 ---
@@ -135,7 +136,7 @@ O Aguinaldo entrega o Model **primeiro** (até terça), porque as telas dependem
 | Fase | Data | O que fazer | Pronto quando… | Situação |
 |---|---|---|---|---|
 | **0 — Preparação** | Seg 02/11 | Commitar `pom.xml` e `Main.java`; confirmar que o app abre no IntelliJ; combinar a divisão com o grupo e mandar os dois PDFs para todos | Todos com o projeto rodando | ✅ Concluída (`fb6cd69`) |
-| **1 — Base (Model)** | Ter 03/11 | **Aguinaldo:** `Cadastro`, `ListaCompra`, `Estabelecimento`, `Produto`, `UnidadeMedida`, `ItemLista` e `Repositorio` (ainda sem JSON). **Demais:** no Scene Builder, ajustar as telas: botões na linha (RN080), coluna "Detalhes", imagem padrão | Um `main` de teste cria objetos, imprime `getDetalhe()` e o `temMesmoNome("  compras DA semana ")` dá `true` | ✅ Model concluído (`3f62c1a`, teste 52/52). ⚠️ Ajustes no Scene Builder: confirmar com o grupo |
+| **1 — Base (Model)** | Ter 03/11 | **Aguinaldo:** `Cadastro`, `ListaCompra`, `Estabelecimento`, `Produto`, `UnidadeMedida`, `ItemLista` e `Repositorio` (ainda sem JSON). **Demais:** no Scene Builder, ajustar as telas: botões na linha (RN080), coluna "Detalhes", imagem padrão | Um `main` de teste cria objetos, imprime `getDetalhe()` e o `temMesmoNome("  compras DA semana ")` dá `true` | ✅ Model concluído (`3f62c1a`, teste 52/52). Ajustes nas telas concluídos em 03/11 (RN080, coluna "Detalhes" e imagem padrão), sem commit ainda |
 | *Extra — navegação* | Ter 03/11 | Conferir a navegação e fazer os botões sem função mostrarem "Função em desenvolvimento..." | Todos os botões respondem ao clique | ✅ Concluída (`3f62c1a`, teste 20/20) |
 | **2 — Telas de cadastro + consulta** | Qua 04/11 – Qui 05/11 | **G. Pereira:** Lista + Menu. **G. Miguel:** Estabelecimento + Produto. Tudo com validação de obrigatório (NF005; a mensagem diz qual campo), duplicidade, contador, editar e excluir com confirmação e bloqueio de exclusão em uso. **Aguinaldo:** `Mensagem.confirmar`/`aviso` e `Navegador` com passagem de dados (o método de exclusão polimórfico já está pronto no `Repositorio`) | Cenários H02–H13 passam | ⏳ Próxima |
 | **3 — Movimentação (Criar Lista)** | Qui 05/11 – Sex 06/11 | **João Pedro:** combos com os cadastros (RN052), lista obrigatória e estabelecimento opcional, inclusão com soma de quantidade (RN055), tabela filtrada (RN058), subtotal, totalizadores, editar e excluir item. **Aguinaldo:** botão "Montar" passando a lista | H14–H17 passam, incluindo o cálculo de R$ 92,00 → R$ 103,00 → R$ 82,80 | ⏳ A fazer (as regras já estão no `Repositorio`) |

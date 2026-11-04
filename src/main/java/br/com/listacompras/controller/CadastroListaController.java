@@ -1,7 +1,12 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.model.ListaCompra;
+import br.com.listacompras.model.Repositorio;
+import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,11 +29,11 @@ public class CadastroListaController implements Initializable {
     @FXML private TextField campoNomeLista;
     @FXML private Button btnAdicionar;
     @FXML private Label rotuloContador;
-    @FXML private TableView<String> tabelaListas;
-    @FXML private TableColumn<String, String> colunaNomeLista;
+    @FXML private TableView<ListaCompra> tabelaListas;
+    @FXML private TableColumn<ListaCompra, String> colunaNomeLista;
+    @FXML private TableColumn<ListaCompra, String> colunaDetalhes;
+    @FXML private TableColumn<ListaCompra, Void> colunaAcoes;
     @FXML private Button btnVoltar;
-    @FXML private Button btnEditar;
-    @FXML private Button btnExcluir;
 
     /**
      * O JavaFX chama este metodo logo depois de montar a tela.
@@ -36,8 +41,15 @@ public class CadastroListaController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle recursos) {
-        // Proximo passo: dizer a coluna de onde ela tira o texto de cada linha
-        // e carregar as listas que ja estao gravadas no arquivo (NF001).
+        colunaNomeLista.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getNome()));
+
+        // Polimorfismo: cada tipo de cadastro responde getDetalhe() do seu jeito
+        colunaDetalhes.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getDetalhe()));
+
+        // Editar e excluir ficam na propria linha do registro (RN080)
+        BotoesLinha.configurarColuna(colunaAcoes, this::editarLista, this::excluirLista);
+
+        tabelaListas.setItems(FXCollections.observableArrayList(Repositorio.getInstancia().getListas()));
     }
 
     @FXML
@@ -47,15 +59,13 @@ public class CadastroListaController implements Initializable {
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void editarLista(ActionEvent evento) {
-        // Proximo passo (RF004): pegar a linha selecionada na tabela e alterar o nome.
+    private void editarLista(ListaCompra lista) {
+        // Proximo passo (RF004): alterar o nome da lista desta linha.
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void excluirLista(ActionEvent evento) {
-        // Proximo passo (RF005): remover da tabela a lista que estiver selecionada.
+    private void excluirLista(ListaCompra lista) {
+        // Proximo passo (RF005): confirmar e remover a lista desta linha.
         Mensagem.emDesenvolvimento();
     }
 

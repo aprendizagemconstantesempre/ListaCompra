@@ -1,5 +1,7 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.model.ItemLista;
+import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.event.ActionEvent;
@@ -29,23 +31,25 @@ public class CriarListaController implements Initializable {
 
     @FXML private Label rotuloItens;
     @FXML private Label rotuloContador;
-    @FXML private TableView<Object> tabelaItens;
-    @FXML private TableColumn<Object, String> colunaProduto;
-    @FXML private TableColumn<Object, String> colunaUnidade;
-    @FXML private TableColumn<Object, String> colunaQuantidade;
-    @FXML private TableColumn<Object, String> colunaValorUnitario;
-    @FXML private TableColumn<Object, String> colunaSubtotal;
+    @FXML private TableView<ItemLista> tabelaItens;
+    @FXML private TableColumn<ItemLista, String> colunaProduto;
+    @FXML private TableColumn<ItemLista, String> colunaUnidade;
+    @FXML private TableColumn<ItemLista, String> colunaQuantidade;
+    @FXML private TableColumn<ItemLista, String> colunaValorUnitario;
+    @FXML private TableColumn<ItemLista, String> colunaSubtotal;
+    @FXML private TableColumn<ItemLista, Void> colunaAcoes;
 
     @FXML private Label rotuloTotalItens;
     @FXML private Label rotuloValorTotal;
     @FXML private Button btnVoltar;
-    @FXML private Button btnEditarItem;
-    @FXML private Button btnExcluirItem;
 
     @Override
     public void initialize(URL url, ResourceBundle recursos) {
         // Proximo passo: preencher as tres listas suspensas com as listas,
         // os estabelecimentos e os produtos que ja foram cadastrados.
+
+        // Editar e excluir ficam na propria linha do item (RN080)
+        BotoesLinha.configurarColuna(colunaAcoes, this::editarItem, this::excluirItem);
     }
 
     @FXML
@@ -55,15 +59,13 @@ public class CriarListaController implements Initializable {
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void editarItem(ActionEvent evento) {
-        // Proximo passo (RF016): alterar quantidade ou valor do item selecionado.
+    private void editarItem(ItemLista item) {
+        // Proximo passo (RF016): alterar quantidade ou valor do item desta linha.
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void excluirItem(ActionEvent evento) {
-        // Proximo passo (RF017): remover o item selecionado e atualizar os totais.
+    private void excluirItem(ItemLista item) {
+        // Proximo passo (RF017): remover o item desta linha e atualizar os totais.
         Mensagem.emDesenvolvimento();
     }
 

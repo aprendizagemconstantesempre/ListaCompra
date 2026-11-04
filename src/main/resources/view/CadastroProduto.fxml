@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -42,7 +43,12 @@
         <!-- Area reservada para a foto do produto (NF006) -->
         <VBox spacing="6" alignment="CENTER">
             <StackPane styleClass="area-foto" prefWidth="80" prefHeight="60">
-                <ImageView fx:id="previaFoto" fitWidth="70" fitHeight="52" preserveRatio="true" />
+                <!-- Sem foto escolhida, a previa mostra a imagem padrao (RN040) -->
+                <ImageView fx:id="previaFoto" fitWidth="70" fitHeight="52" preserveRatio="true">
+                    <image>
+                        <Image url="@../img/produto_padrao.png" />
+                    </image>
+                </ImageView>
             </StackPane>
             <Button fx:id="btnEscolherFoto" text="Escolher foto" onAction="#escolherFoto"
                     styleClass="botao-secundario" prefWidth="100" />
@@ -90,16 +96,26 @@
     <!--
         Mostramos os produtos em formato de cartoes, como no mockup do documento.
         O controller cria um cartao para cada produto e adiciona dentro deste FlowPane.
-        O cartao abaixo fica aqui so como modelo visual: podemos apaga-lo quando
-        o metodo que monta os cartoes estiver pronto.
+        O cartao abaixo e so um modelo para o Scene Builder: o controller o apaga
+        ao abrir a tela e cria os cartoes de verdade, com os mesmos elementos.
     -->
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cartao">
         <content>
             <FlowPane fx:id="painelProdutos" hgap="14" vgap="14" prefWrapLength="760">
                 <VBox styleClass="cartao" spacing="6" prefWidth="170">
-                    <StackPane styleClass="area-foto" prefHeight="90" />
+                    <StackPane styleClass="area-foto" prefHeight="90">
+                        <ImageView fitWidth="110" fitHeight="78" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/produto_padrao.png" />
+                            </image>
+                        </ImageView>
+                    </StackPane>
                     <Label text="Arroz branco 5kg" styleClass="titulo-opcao" />
                     <Label text="Pacote" styleClass="descricao-opcao" />
+                    <HBox spacing="6" alignment="CENTER">
+                        <Button text="Editar" styleClass="botao-secundario,botao-linha" />
+                        <Button text="Excluir" styleClass="botao-excluir,botao-linha" />
+                    </HBox>
                 </VBox>
             </FlowPane>
         </content>

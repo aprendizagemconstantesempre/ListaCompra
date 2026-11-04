@@ -1,7 +1,12 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.model.Estabelecimento;
+import br.com.listacompras.model.Repositorio;
+import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,16 +38,24 @@ public class CadastroEstabelecimentoController implements Initializable {
 
     @FXML private Button btnAdicionar;
     @FXML private Label rotuloContador;
-    @FXML private TableView<Object> tabelaEstabelecimentos;
-    @FXML private TableColumn<Object, String> colunaNome;
-    @FXML private TableColumn<Object, String> colunaDias;
+    @FXML private TableView<Estabelecimento> tabelaEstabelecimentos;
+    @FXML private TableColumn<Estabelecimento, String> colunaNome;
+    @FXML private TableColumn<Estabelecimento, String> colunaDias;
+    @FXML private TableColumn<Estabelecimento, Void> colunaAcoes;
     @FXML private Button btnVoltar;
-    @FXML private Button btnEditar;
-    @FXML private Button btnExcluir;
 
     @Override
     public void initialize(URL url, ResourceBundle recursos) {
-        // Proximo passo: configurar as colunas e carregar os estabelecimentos ja salvos.
+        colunaNome.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getNome()));
+
+        // Polimorfismo: aqui getDetalhe() devolve os dias, como "Ter, Sex"
+        colunaDias.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getDetalhe()));
+
+        // Editar e excluir ficam na propria linha do registro (RN080)
+        BotoesLinha.configurarColuna(colunaAcoes, this::editarEstabelecimento, this::excluirEstabelecimento);
+
+        tabelaEstabelecimentos.setItems(
+                FXCollections.observableArrayList(Repositorio.getInstancia().getEstabelecimentos()));
     }
 
     @FXML
@@ -52,15 +65,13 @@ public class CadastroEstabelecimentoController implements Initializable {
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void editarEstabelecimento(ActionEvent evento) {
-        // Proximo passo (RF008): alterar nome e dias do estabelecimento selecionado.
+    private void editarEstabelecimento(Estabelecimento estabelecimento) {
+        // Proximo passo (RF008): alterar nome e dias do estabelecimento desta linha.
         Mensagem.emDesenvolvimento();
     }
 
-    @FXML
-    private void excluirEstabelecimento(ActionEvent evento) {
-        // Proximo passo (RF009): excluir o estabelecimento selecionado na tabela.
+    private void excluirEstabelecimento(Estabelecimento estabelecimento) {
+        // Proximo passo (RF009): confirmar e excluir o estabelecimento desta linha.
         Mensagem.emDesenvolvimento();
     }
 

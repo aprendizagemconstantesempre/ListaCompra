@@ -66,8 +66,9 @@
     <!-- Listagem com o nome e os dias de promocao de cada estabelecimento (RF007) -->
     <TableView fx:id="tabelaEstabelecimentos" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colunaNome" text="NOME" prefWidth="380" />
-            <TableColumn fx:id="colunaDias" text="DIAS DE PROMOCAO" prefWidth="320" />
+            <TableColumn fx:id="colunaNome" text="NOME" prefWidth="340" />
+            <TableColumn fx:id="colunaDias" text="DIAS DE PROMOCAO" prefWidth="330" />
+            <TableColumn fx:id="colunaAcoes" text="AÇÕES" prefWidth="150" sortable="false" />
         </columns>
     </TableView>
 
@@ -76,11 +77,6 @@
     <HBox spacing="10">
         <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
                 styleClass="botao-secundario" prefWidth="140" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnEditar" text="Editar selecionado" onAction="#editarEstabelecimento"
-                styleClass="botao-secundario" prefWidth="160" />
-        <Button fx:id="btnExcluir" text="Excluir selecionado" onAction="#excluirEstabelecimento"
-                styleClass="botao-excluir" prefWidth="160" />
     </HBox>
 
 </VBox>

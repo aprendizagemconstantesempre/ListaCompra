@@ -55,21 +55,17 @@
     <!-- Tabela que mostra todas as listas ja cadastradas (RF003) -->
     <TableView fx:id="tabelaListas" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colunaNomeLista" text="NOME DA LISTA" prefWidth="700" />
+            <TableColumn fx:id="colunaNomeLista" text="NOME DA LISTA" prefWidth="380" />
+            <TableColumn fx:id="colunaDetalhes" text="DETALHES" prefWidth="290" />
+            <TableColumn fx:id="colunaAcoes" text="AÇÕES" prefWidth="150" sortable="false" />
         </columns>
     </TableView>
 
     <Region prefHeight="10" />
 
-    <!-- Acoes que trabalham sobre a linha selecionada na tabela -->
     <HBox spacing="10">
         <Button fx:id="btnVoltar" text="Voltar ao menu" onAction="#voltarAoMenu"
                 styleClass="botao-secundario" prefWidth="140" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnEditar" text="Editar selecionada" onAction="#editarLista"
-                styleClass="botao-secundario" prefWidth="160" />
-        <Button fx:id="btnExcluir" text="Excluir selecionada" onAction="#excluirLista"
-                styleClass="botao-excluir" prefWidth="160" />
     </HBox>
 
 </VBox>
