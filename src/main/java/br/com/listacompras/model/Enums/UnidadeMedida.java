@@ -1,4 +1,4 @@
-package br.com.listacompras.model;
+package br.com.listacompras.model.Enums;
 
 /**
  * Unidades de medida aceitas para um produto (RN038).
