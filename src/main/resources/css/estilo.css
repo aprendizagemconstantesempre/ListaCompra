@@ -129,6 +129,32 @@
     -fx-cursor: hand;
 }
 
+/*
+   Botoes dos dias de promocao (ToggleButton). O JavaFX liga a pseudo-classe
+   :selected quando o botao fica pressionado. Sem esta regra o dia marcado
+   ficava branco, igual ao desmarcado, e parecia que o clique nao funcionava.
+*/
+.botao-dia {
+    -fx-background-color: white;
+    -fx-text-fill: #3A3A3A;
+    -fx-border-color: #D9D2C4;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-pref-height: 32;
+    -fx-cursor: hand;
+}
+
+.botao-dia:hover {
+    -fx-border-color: #2F7A48;
+}
+
+.botao-dia:selected {
+    -fx-background-color: #2F7A48;
+    -fx-text-fill: white;
+    -fx-border-color: #2F7A48;
+    -fx-font-weight: bold;
+}
+
 /* Botao de exclusao, em vermelho, para o usuario perceber que a acao e destrutiva */
 .botao-excluir {
     -fx-background-color: white;

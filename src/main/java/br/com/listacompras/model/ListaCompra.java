@@ -18,6 +18,10 @@ public class ListaCompra extends Cadastro {
         super(id, nome);
     }
 
+    /** Construtor vazio usado pelo Gson ao ler o arquivo JSON. */
+    private ListaCompra() {
+    }
+
     /** Exemplo: "3 produtos — R$ 92,00". */
     @Override
     public String getDetalhe() {

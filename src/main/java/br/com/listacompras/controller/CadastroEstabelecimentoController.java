@@ -2,7 +2,9 @@ package br.com.listacompras.controller;
 
 import br.com.listacompras.model.Estabelecimento;
 import br.com.listacompras.model.Repositorio;
+import br.com.listacompras.model.ValidacaoException;
 import br.com.listacompras.util.BotoesLinha;
+import br.com.listacompras.util.Formatador;
 import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,10 +20,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 
 import java.net.URL;
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
  * Controller da tela de estabelecimentos (requisitos RF006 a RF009).
+ * A consulta (RF007) fica na tabela desta mesma tela (RN010).
  */
 public class CadastroEstabelecimentoController implements Initializable {
 
@@ -37,6 +45,7 @@ public class CadastroEstabelecimentoController implements Initializable {
     @FXML private ToggleButton btnSabado;
 
     @FXML private Button btnAdicionar;
+    @FXML private Button btnCancelar;
     @FXML private Label rotuloContador;
     @FXML private TableView<Estabelecimento> tabelaEstabelecimentos;
     @FXML private TableColumn<Estabelecimento, String> colunaNome;
@@ -44,8 +53,24 @@ public class CadastroEstabelecimentoController implements Initializable {
     @FXML private TableColumn<Estabelecimento, Void> colunaAcoes;
     @FXML private Button btnVoltar;
 
+    private final Repositorio repositorio = Repositorio.getInstancia();
+
+    // Liga cada botao da tela ao dia da semana do Java. A ordem e a da tela (Dom a Sab).
+    private final Map<DayOfWeek, ToggleButton> botoesDosDias = new LinkedHashMap<>();
+
+    // Estabelecimento que esta sendo editado (nulo quando estamos cadastrando um novo)
+    private Estabelecimento estabelecimentoEmEdicao;
+
     @Override
     public void initialize(URL url, ResourceBundle recursos) {
+        botoesDosDias.put(DayOfWeek.SUNDAY, btnDomingo);
+        botoesDosDias.put(DayOfWeek.MONDAY, btnSegunda);
+        botoesDosDias.put(DayOfWeek.TUESDAY, btnTerca);
+        botoesDosDias.put(DayOfWeek.WEDNESDAY, btnQuarta);
+        botoesDosDias.put(DayOfWeek.THURSDAY, btnQuinta);
+        botoesDosDias.put(DayOfWeek.FRIDAY, btnSexta);
+        botoesDosDias.put(DayOfWeek.SATURDAY, btnSabado);
+
         colunaNome.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getNome()));
 
         // Polimorfismo: aqui getDetalhe() devolve os dias, como "Ter, Sex"
@@ -54,29 +79,98 @@ public class CadastroEstabelecimentoController implements Initializable {
         // Editar e excluir ficam na propria linha do registro (RN080)
         BotoesLinha.configurarColuna(colunaAcoes, this::editarEstabelecimento, this::excluirEstabelecimento);
 
-        tabelaEstabelecimentos.setItems(
-                FXCollections.observableArrayList(Repositorio.getInstancia().getEstabelecimentos()));
+        tabelaEstabelecimentos.setPlaceholder(new Label("Ainda não há estabelecimentos cadastrados"));
+
+        atualizarTabela();
+    }
+
+    /** Cadastra (RF006) ou salva a alteração (RF008) do estabelecimento. */
+    @FXML
+    private void adicionarEstabelecimento(ActionEvent evento) {
+        try {
+            if (estabelecimentoEmEdicao == null) {
+                repositorio.cadastrarEstabelecimento(campoNomeEstabelecimento.getText(), diasSelecionados());
+                Mensagem.informar("Estabelecimento cadastrado com sucesso");
+            } else {
+                repositorio.alterarEstabelecimento(estabelecimentoEmEdicao,
+                        campoNomeEstabelecimento.getText(), diasSelecionados());
+                Mensagem.informar("Estabelecimento alterado com sucesso");
+            }
+            limparFormulario();
+            atualizarTabela();
+        } catch (ValidacaoException erro) {
+            Mensagem.avisar(erro.getMessage());
+            campoNomeEstabelecimento.requestFocus();
+        }
+    }
+
+    /** Preenche o formulário com os dados da linha e troca o botão para "Salvar" (RF008). */
+    private void editarEstabelecimento(Estabelecimento estabelecimento) {
+        estabelecimentoEmEdicao = estabelecimento;
+        campoNomeEstabelecimento.setText(estabelecimento.getNome());
+
+        List<DayOfWeek> dias = estabelecimento.getDiasPromocao();
+        for (Map.Entry<DayOfWeek, ToggleButton> par : botoesDosDias.entrySet()) {
+            par.getValue().setSelected(dias.contains(par.getKey()));
+        }
+
+        btnAdicionar.setText("Salvar");
+        mostrarCancelar(true);
+        campoNomeEstabelecimento.requestFocus();
+    }
+
+    /** Confirma e exclui, se não houver itens ligados a ele (RF009, RN033, RN034). */
+    private void excluirEstabelecimento(Estabelecimento estabelecimento) {
+        if (ExclusaoCadastro.excluir(estabelecimento, "o estabelecimento")) {
+            if (estabelecimento == estabelecimentoEmEdicao) {
+                limparFormulario();
+            }
+            atualizarTabela();
+        }
     }
 
     @FXML
-    private void adicionarEstabelecimento(ActionEvent evento) {
-        // Proximo passo (RF006): ler o nome, descobrir quais botoes de dia estao
-        // selecionados e gravar o estabelecimento com essa lista de dias.
-        Mensagem.emDesenvolvimento();
-    }
-
-    private void editarEstabelecimento(Estabelecimento estabelecimento) {
-        // Proximo passo (RF008): alterar nome e dias do estabelecimento desta linha.
-        Mensagem.emDesenvolvimento();
-    }
-
-    private void excluirEstabelecimento(Estabelecimento estabelecimento) {
-        // Proximo passo (RF009): confirmar e excluir o estabelecimento desta linha.
-        Mensagem.emDesenvolvimento();
+    private void cancelarEdicao(ActionEvent evento) {
+        limparFormulario();
     }
 
     @FXML
     private void voltarAoMenu(ActionEvent evento) {
         Navegador.abrir(btnVoltar, "/view/MenuPrincipal.fxml");
+    }
+
+    /** Devolve os dias cujos botões estão pressionados. Nenhum dia também é válido (RN024). */
+    private List<DayOfWeek> diasSelecionados() {
+        List<DayOfWeek> dias = new ArrayList<>();
+        for (Map.Entry<DayOfWeek, ToggleButton> par : botoesDosDias.entrySet()) {
+            if (par.getValue().isSelected()) {
+                dias.add(par.getKey());
+            }
+        }
+        return dias;
+    }
+
+    private void limparFormulario() {
+        estabelecimentoEmEdicao = null;
+        campoNomeEstabelecimento.clear();
+        for (ToggleButton botao : botoesDosDias.values()) {
+            botao.setSelected(false);
+        }
+        btnAdicionar.setText("+ Adicionar");
+        mostrarCancelar(false);
+    }
+
+    private void mostrarCancelar(boolean mostrar) {
+        btnCancelar.setVisible(mostrar);
+        btnCancelar.setManaged(mostrar);
+    }
+
+    /** Recarrega a tabela e o contador de registros (RN028). */
+    private void atualizarTabela() {
+        tabelaEstabelecimentos.setItems(
+                FXCollections.observableArrayList(repositorio.getEstabelecimentos()));
+        tabelaEstabelecimentos.refresh();
+        rotuloContador.setText(Formatador.contador(repositorio.getEstabelecimentos().size(),
+                "estabelecimento cadastrado", "estabelecimentos cadastrados"));
     }
 }

@@ -30,12 +30,59 @@ public class Repositorio {
     private final List<Produto> produtos = new ArrayList<>();                 // D3
     private final List<ItemLista> itens = new ArrayList<>();                  // D4
 
+    // Responsável por gravar o arquivo JSON. Fica nulo nos testes, que não gravam nada.
+    private Persistencia persistencia;
+
     // Construtor privado: ninguém de fora consegue criar um segundo Repositorio
     private Repositorio() {
     }
 
     public static Repositorio getInstancia() {
         return INSTANCIA;
+    }
+
+    // =====================================================================
+    // Gravação em arquivo (NF001, RN074 a RN077)
+    // =====================================================================
+
+    /**
+     * Carrega os dados do arquivo (RN075) e passa a gravar o arquivo depois
+     * de cada operação (RN074). O App chama este método ao abrir o sistema.
+     *
+     * @throws ValidacaoException se o arquivo estiver corrompido (RN077). Mesmo
+     *         nesse caso a gravação fica ativa, começando com os dados vazios.
+     */
+    public void ativarGravacao(Persistencia persistencia) {
+        this.persistencia = persistencia;
+        persistencia.carregar(this);
+    }
+
+    /** Troca todo o conteúdo do repositório. Usado só pela Persistencia ao ler o arquivo. */
+    void substituirDados(List<ListaCompra> novasListas, List<Estabelecimento> novosEstabelecimentos,
+                         List<Produto> novosProdutos, List<ItemLista> novosItens) {
+        listas.clear();
+        listas.addAll(novasListas);
+        estabelecimentos.clear();
+        estabelecimentos.addAll(novosEstabelecimentos);
+        produtos.clear();
+        produtos.addAll(novosProdutos);
+        itens.clear();
+        itens.addAll(novosItens);
+    }
+
+    /**
+     * Grava tudo no arquivo agora. Usado ao sair do sistema (RN071), como
+     * garantia extra, já que cada operação já foi gravada na hora (RN074).
+     */
+    public void gravarTudo() {
+        gravar();
+    }
+
+    /** Grava o arquivo, se a gravação estiver ativa. Chamado no fim de toda alteração. */
+    private void gravar() {
+        if (persistencia != null) {
+            persistencia.salvar(this);
+        }
     }
 
     // =====================================================================
@@ -53,6 +100,29 @@ public class Repositorio {
 
     public List<Produto> getProdutos() {
         return Collections.unmodifiableList(produtos);
+    }
+
+    /** Todos os itens de todas as listas (depósito D4). Usado pela Persistencia. */
+    public List<ItemLista> getItens() {
+        return Collections.unmodifiableList(itens);
+    }
+
+    public ListaCompra buscarLista(int id) {
+        for (ListaCompra lista : listas) {
+            if (lista.getId() == id) {
+                return lista;
+            }
+        }
+        return null;
+    }
+
+    public Estabelecimento buscarEstabelecimento(Integer id) {
+        for (Estabelecimento estabelecimento : estabelecimentos) {
+            if (id != null && estabelecimento.getId() == id) {
+                return estabelecimento;
+            }
+        }
+        return null;
     }
 
     public Produto buscarProduto(int id) {
@@ -74,6 +144,7 @@ public class Repositorio {
 
         ListaCompra lista = new ListaCompra(proximoId(listas), nomeLimpo);
         listas.add(lista);
+        gravar();
         return lista;
     }
 
@@ -82,6 +153,7 @@ public class Repositorio {
         // Passamos a própria lista como "ignorar": manter o mesmo nome não é repetição (RN016)
         recusarNomeRepetido(listas, nomeLimpo, lista, "Já existe uma lista com esse nome");
         lista.setNome(nomeLimpo); // os itens continuam ligados pelo id (RN017)
+        gravar();
     }
 
     // =====================================================================
@@ -96,6 +168,7 @@ public class Repositorio {
         Estabelecimento estabelecimento =
                 new Estabelecimento(proximoId(estabelecimentos), nomeLimpo, diasPromocao);
         estabelecimentos.add(estabelecimento);
+        gravar();
         return estabelecimento;
     }
 
@@ -106,6 +179,7 @@ public class Repositorio {
                 "Já existe um estabelecimento com esse nome");
         estabelecimento.setNome(nomeLimpo);
         estabelecimento.setDiasPromocao(diasPromocao); // pode ficar sem nenhum dia (RN031)
+        gravar();
     }
 
     // =====================================================================
@@ -120,6 +194,7 @@ public class Repositorio {
 
         Produto produto = new Produto(proximoId(produtos), descricaoLimpa, unidade, caminhoFoto);
         produtos.add(produto);
+        gravar();
         return produto;
     }
 
@@ -140,6 +215,7 @@ public class Repositorio {
         produto.setDescricao(descricaoLimpa);
         produto.setUnidade(novaUnidade);
         produto.setCaminhoFoto(caminhoFoto);
+        gravar();
         return mudouUnidadeEmUso;
     }
 
@@ -176,6 +252,7 @@ public class Repositorio {
         listas.remove(cadastro);
         estabelecimentos.remove(cadastro);
         produtos.remove(cadastro);
+        gravar();
     }
 
     // =====================================================================
@@ -233,6 +310,7 @@ public class Repositorio {
                 if (valorUnitario != null) {
                     item.setValorUnitario(valorUnitario);
                 }
+                gravar();
                 return item;
             }
         }
@@ -241,6 +319,7 @@ public class Repositorio {
         ItemLista novo = new ItemLista(proximoIdItem(), lista.getId(), idEstabelecimento,
                 produto.getId(), produto.getUnidade(), quantidade, valorUnitario);
         itens.add(novo);
+        gravar();
         return novo;
     }
 
@@ -249,11 +328,13 @@ public class Repositorio {
         validarQuantidadeEValor(novaQuantidade, novoValorUnitario);
         item.setQuantidade(novaQuantidade);
         item.setValorUnitario(novoValorUnitario);
+        gravar();
     }
 
     /** Remove só o item. O produto continua cadastrado (RN069). */
     public void excluirItem(ItemLista item) {
         itens.remove(item);
+        gravar();
     }
 
     /** Total de itens: soma das quantidades (RN061). */

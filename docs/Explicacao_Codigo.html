@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lista de Compras — Explicação do Código</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: #0f5132; }
+  h2 { font-size: 15pt; color: #0f5132; border-bottom: 2px solid #cfe3d8; padding-bottom: 3px; margin-top: 24px; break-after: avoid; }
+  h3 { font-size: 12pt; margin: 18px 0 4px; color: #123; break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 12px 0 2px; break-after: avoid; }
+  p { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9.5pt; break-inside: avoid; }
+  th, td { border: 1px solid #c9d3dc; padding: 4px 7px; text-align: left; vertical-align: top; }
+  th { background: #e8f2ec; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: #f1f4f6; padding: 0 3px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 8.6pt; line-height: 1.4; background: #f6f8fa; border: 1px solid #dde3e8; border-left: 4px solid #2f7a48; border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; break-inside: avoid; margin: 6px 0 8px; }
+  .capa { text-align: center; padding-top: 55mm; break-after: page; }
+  .capa h1 { font-size: 28pt; }
+  .capa .sub { font-size: 13pt; color: #52606d; margin-top: 6px; }
+  .capa .grupo { margin-top: 55mm; font-size: 11pt; }
+  .dica { background: #eef7f1; border-left: 4px solid #2f7a48; padding: 6px 10px; margin: 10px 0; break-inside: avoid; }
+  .atencao { background: #fff8e6; border-left: 4px solid #e0a800; padding: 6px 10px; margin: 10px 0; break-inside: avoid; }
+  .pergunta { border: 1px solid #c9d3dc; border-radius: 6px; padding: 8px 12px; margin: 10px 0; break-inside: avoid; }
+  .pergunta .q { font-weight: 700; color: #0f5132; }
+  .pergunta .quem { float: right; font-size: 8.5pt; color: #52606d; background: #f1f4f6; border-radius: 10px; padding: 1px 8px; }
+  .pergunta p { margin: 4px 0; }
+  ol, ul { margin: 4px 0 8px 20px; padding: 0; }
+  li { margin: 2px 0; }
+  .quebra { break-before: page; }
+  .sumario li { margin: 1px 0; }
+  .passo { counter-reset: passo; list-style: none; margin-left: 0; }
+  .passo li { counter-increment: passo; position: relative; padding-left: 28px; margin: 5px 0; }
+  .passo li::before { content: counter(passo); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: #2f7a48; color: #fff; font-size: 9pt; text-align: center; line-height: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================== CAPA -->
+<div class="capa">
+  <h1>Lista de Compras</h1>
+  <div class="sub">Explicação didática do código</div>
+  <div class="sub">e perguntas prováveis do professor, com respostas</div>
+  <div class="grupo">
+    Paradigma de Programação — Trabalho Bimestral<br><br>
+    Aguinaldo Alves · Gustavo Pereira · Gustavo Miguel · João Pedro<br><br>
+    Novembro de 2026
+  </div>
+</div>
+
+<h2>Como usar este material</h2>
+<p>Este documento explica o código do sistema <strong>na ordem em que ele funciona</strong>: primeiro o que acontece
+quando o programa abre, depois as classes que guardam os dados (Model), as telas (View), quem liga as telas aos dados
+(Controller) e as classes de apoio. No fim há perguntas que o professor pode fazer na apresentação, cada uma com a
+resposta e com o nome de quem do grupo deve responder.</p>
+<div class="dica"><strong>Dica de estudo:</strong> leia uma seção com o código aberto no IntelliJ ao lado. Use
+<code>Ctrl + clique</code> no nome de um método para ir até ele, e <code>Alt + F7</code> para ver onde ele é usado.</div>
+
+<ol class="sumario">
+  <li>Visão geral: MVC e pacotes</li>
+  <li>O que acontece quando o programa abre</li>
+  <li>Model: as classes de dados e as regras</li>
+  <li>View: FXML, Scene Builder e CSS</li>
+  <li>Controller: a ponte entre a tela e os dados</li>
+  <li>Classes de apoio (pacote <code>util</code>)</li>
+  <li>Três cliques acompanhados do começo ao fim</li>
+  <li>Recursos da linguagem Java usados no projeto</li>
+  <li>Testes</li>
+  <li>Limitações conhecidas (para responder com honestidade)</li>
+  <li>Perguntas prováveis do professor e respostas</li>
+  <li>Glossário rápido</li>
+</ol>
+
+<!-- ================================================================== 1 -->
+<h2>1. Visão geral: MVC e pacotes</h2>
+<p>O sistema está dividido no padrão <strong>MVC</strong> (Model–View–Controller). A ideia é separar três
+responsabilidades, para que mexer em uma não obrigue a mexer nas outras:</p>
+<table>
+  <tr><th>Parte</th><th>Responsabilidade</th><th>Onde está</th></tr>
+  <tr><td><strong>Model</strong></td><td>Os dados e as <strong>regras de negócio</strong> (nome obrigatório, nome repetido, cálculo do total, gravação no arquivo). Não sabe nada de tela.</td><td><code>br.com.listacompras.model</code></td></tr>
+  <tr><td><strong>View</strong></td><td>O visual: botões, campos, tabelas. Não tem regra nenhuma.</td><td><code>src/main/resources/view/*.fxml</code> e <code>css/estilo.css</code></td></tr>
+  <tr><td><strong>Controller</strong></td><td>Recebe os cliques da tela, pede ao Model para fazer a operação e atualiza a tela com o resultado.</td><td><code>br.com.listacompras.controller</code></td></tr>
+  <tr><td>Apoio</td><td>Código reaproveitado por várias telas (trocar de tela, janelas de mensagem, formatar R$).</td><td><code>br.com.listacompras.util</code></td></tr>
+</table>
+<pre>Lista_Compras/
+├── pom.xml                         ← dependências: JavaFX 21 e Gson
+├── dados/lista_compras.json        ← criado na primeira execução
+└── src/main/
+    ├── java/
+    │   ├── org/example/Main.java   ← ponto de partida
+    │   └── br/com/listacompras/
+    │       ├── App.java            ← inicia o JavaFX
+    │       ├── model/              ← Cadastro, ListaCompra, Estabelecimento, Produto,
+    │       │                          ItemLista, UnidadeMedida, Repositorio, Persistencia,
+    │       │                          ValidacaoException
+    │       ├── controller/         ← um controller por tela + ExclusaoCadastro
+    │       └── util/               ← Navegador, Mensagem, BotoesLinha, Formatador, Encerramento
+    └── resources/
+        ├── view/                   ← 5 telas .fxml (Scene Builder)
+        ├── css/estilo.css
+        └── img/produto_padrao.png  ← imagem de produto sem foto</pre>
+
+<!-- ================================================================== 2 -->
+<h2>2. O que acontece quando o programa abre</h2>
+<ol class="passo">
+  <li><code>Main.main()</code> é executado. Ele só chama <code>App.main()</code>.</li>
+  <li><code>App.main()</code> chama <code>launch(args)</code>, que liga o JavaFX. O JavaFX cria a janela (o <code>Stage</code>) e chama <code>App.start(palco)</code>.</li>
+  <li>Em <code>start</code>, antes de mostrar qualquer tela, o sistema carrega os dados do arquivo JSON:
+    <code>Repositorio.getInstancia().ativarGravacao(new Persistencia(...))</code>.</li>
+  <li>O <code>FXMLLoader</code> lê o <code>MenuPrincipal.fxml</code>, monta os componentes e cria o <code>MenuPrincipalController</code>.</li>
+  <li>A tela é colocada numa <code>Scene</code>, a cena é colocada na janela e a janela aparece com <code>palco.show()</code>.</li>
+</ol>
+<pre>public void start(Stage palco) throws Exception {
+    try {
+        Repositorio.getInstancia().ativarGravacao(new Persistencia(Persistencia.ARQUIVO_PADRAO));
+    } catch (ValidacaoException erro) {
+        Mensagem.avisar(erro.getMessage());      // arquivo corrompido (RN077)
+    }
+    Parent raiz = FXMLLoader.load(getClass().getResource("/view/MenuPrincipal.fxml"));
+    palco.setScene(new Scene(raiz));
+    palco.setOnCloseRequest(evento -&gt; {          // "X" da janela
+        if (!Encerramento.confirmarSaida(palco.getScene())) {
+            evento.consume();                    // consume() cancela o fechamento
+        }
+    });
+    palco.show();
+}</pre>
+<div class="atencao"><strong>Por que existem duas classes de início (Main e App)?</strong> Quando a classe principal herda
+de <code>Application</code> e o JavaFX está no classpath (como no Maven), o Java recusa abrir com o erro
+"JavaFX runtime components are missing". Começando por uma classe comum (<code>Main</code>) que chama o <code>App</code>,
+o problema some.</div>
+<p>A metáfora do JavaFX é de teatro: <strong>Stage</strong> (palco) é a janela, <strong>Scene</strong> (cena) é o
+conteúdo que está no palco agora, e trocar de tela é trocar a cena.</p>
+
+<!-- ================================================================== 3 -->
+<h2 class="quebra">3. Model: as classes de dados e as regras</h2>
+
+<h3>3.1 <code>Cadastro</code>: a classe pai (herança e abstração)</h3>
+<p>Lista, estabelecimento e produto têm coisas em comum: um <strong>id</strong>, um <strong>nome</strong> e a regra de
+que o nome não pode se repetir. Em vez de escrever isso três vezes, criamos uma classe pai.</p>
+<pre>public abstract class Cadastro {
+    private int id;                 // ENCAPSULAMENTO: ninguém de fora mexe direto
+    private String nome;
+
+    protected Cadastro(int id, String nome) {   // só as filhas chamam (super)
+        this.id = id;
+        this.nome = nome;
+    }
+
+    public boolean temMesmoNome(String outroNome) {
+        if (nome == null || outroNome == null) return false;
+        return nome.trim().equalsIgnoreCase(outroNome.trim());
+    }
+
+    public abstract String getDetalhe();            // cada filha responde do seu jeito
+    public abstract String getMensagemEmUso();
+    public abstract boolean estaVinculadoA(ItemLista item);
+
+    @Override
+    public String toString() { return nome; }       // o ComboBox mostra o nome
+}</pre>
+<ul>
+  <li><strong><code>abstract class</code></strong>: não dá para fazer <code>new Cadastro(...)</code>. Faz sentido, porque não existe "um cadastro qualquer"; todo objeto é uma lista, um estabelecimento ou um produto.</li>
+  <li><strong><code>abstract</code> nos métodos</strong>: o pai diz <em>que</em> o método existe, mas não diz <em>como</em> funciona. Cada filha é <strong>obrigada</strong> a escrever a sua versão (senão o código não compila).</li>
+  <li><strong><code>temMesmoNome</code></strong>: <code>trim()</code> tira os espaços do começo e do fim, e <code>equalsIgnoreCase</code> compara ignorando maiúsculas e minúsculas. Assim "&nbsp;compras DA semana&nbsp;" é igual a "Compras da semana" (RN007).</li>
+  <li><strong><code>toString()</code></strong>: o <code>ComboBox</code> do JavaFX usa o <code>toString()</code> para escrever cada opção. Sem isso, apareceria algo como <code>ListaCompra@1b6d3586</code>.</li>
+</ul>
+
+<h3>3.2 As três filhas: <code>ListaCompra</code>, <code>Estabelecimento</code> e <code>Produto</code></h3>
+<pre>public class ListaCompra extends Cadastro {
+    public ListaCompra(int id, String nome) {
+        super(id, nome);           // chama o construtor do pai
+    }
+
+    @Override
+    public String getDetalhe() {   // "3 produtos — R$ 92,00"
+        Repositorio repositorio = Repositorio.getInstancia();
+        List&lt;ItemLista&gt; itens = repositorio.itensDaLista(this);
+        String produtos = (itens.size() == 1) ? "1 produto" : itens.size() + " produtos";
+        return produtos + " — " + Formatador.moeda(repositorio.somarValores(itens));
+    }
+
+    @Override
+    public String getMensagemEmUso() {
+        return "Não é possível excluir: a lista possui itens vinculados";
+    }
+
+    @Override
+    public boolean estaVinculadoA(ItemLista item) {
+        return item.getIdLista() == getId();
+    }
+}</pre>
+<p><code>extends</code> é a palavra da herança. <code>@Override</code> avisa ao compilador que o método está
+substituindo o do pai: se escrevermos o nome errado, dá erro de compilação em vez de um erro silencioso.</p>
+<p>Repare que o detalhe da lista é <strong>calculado na hora</strong>, a partir dos itens. Por isso, quando um item é
+incluído na tela Criar Lista, a tela Cadastrar Lista já mostra o valor novo, sem precisar "avisar" nada.</p>
+
+<h4><code>Estabelecimento</code>: os dias de promoção</h4>
+<pre>private List&lt;DayOfWeek&gt; diasPromocao = new ArrayList&lt;&gt;();
+
+private List&lt;DayOfWeek&gt; organizarDias(List&lt;DayOfWeek&gt; dias) {
+    List&lt;DayOfWeek&gt; semRepetir = new ArrayList&lt;&gt;();
+    if (dias != null) {
+        for (DayOfWeek dia : dias) {
+            if (dia != null &amp;&amp; !semRepetir.contains(dia)) {   // RN023: sem repetir
+                semRepetir.add(dia);
+            }
+        }
+    }
+    // No Java o domingo vale 7. "% 7" transforma o domingo em 0,
+    // então ele passa a ser o primeiro da semana (RN026: Dom a Sáb)
+    semRepetir.sort(Comparator.comparingInt(dia -&gt; dia.getValue() % 7));
+    return semRepetir;
+}
+
+public List&lt;DayOfWeek&gt; getDiasPromocao() {
+    return new ArrayList&lt;&gt;(diasPromocao);   // devolve uma CÓPIA (encapsulamento)
+}</pre>
+<ul>
+  <li><code>DayOfWeek</code> é um enum do próprio Java (<code>MONDAY</code>, <code>TUESDAY</code>…). Não precisamos inventar uma forma de guardar dias.</li>
+  <li><code>getDiasPromocao()</code> devolve uma cópia: quem receber a lista pode mexer nela à vontade, que a lista original do objeto não muda.</li>
+  <li><code>getDetalhe()</code> transforma os dias em "Ter, Sex", ou devolve "Sem dias de promoção" (RN027).</li>
+</ul>
+
+<h4><code>Produto</code></h4>
+<p>O <code>nome</code> herdado guarda a <strong>descrição</strong>. Criamos <code>getDescricao()</code>, que só chama
+<code>getNome()</code>, para o código usar a mesma palavra que o usuário vê na tela. O produto também tem a
+<code>unidade</code> (enum <code>UnidadeMedida</code>) e o <code>caminhoFoto</code>, que pode ficar nulo (foto opcional).</p>
+
+<h3>3.3 <code>UnidadeMedida</code>: um enum</h3>
+<pre>public enum UnidadeMedida {
+    UNIDADE("Unidade"), QUILOGRAMA("Quilograma"), LITRO("Litro"),
+    PACOTE("Pacote"), CAIXA("Caixa");
+
+    private final String descricao;
+    UnidadeMedida(String descricao) { this.descricao = descricao; }
+
+    @Override
+    public String toString() { return descricao; }   // ComboBox mostra "Pacote"
+}</pre>
+<p>Um <strong>enum</strong> é um tipo com uma lista fechada de valores. O Java não deixa criar uma sexta unidade, e
+isso garante a RN038 ("a unidade deve ser escolhida entre unidade, quilograma, litro, pacote e caixa") sem nenhum
+<code>if</code>.</p>
+
+<h3>3.4 <code>ItemLista</code>: o produto dentro de uma lista</h3>
+<pre>public class ItemLista {
+    private int id;
+    private int idLista;
+    private Integer idEstabelecimento;   // Integer: pode ser null (RN051)
+    private int idProduto;
+    private UnidadeMedida unidade;       // unidade no momento da inclusão (RN056)
+    private double quantidade;
+    private Double valorUnitario;        // Double: pode ser null (RN054)
+
+    public double getSubtotal() {
+        if (valorUnitario == null) return 0;   // RN060
+        return quantidade * valorUnitario;
+    }
+}</pre>
+<ul>
+  <li><strong>Guarda ids, não objetos.</strong> Se o usuário renomeia o produto, todos os itens mostram o nome novo, porque buscam o produto pelo id na hora de mostrar. E o arquivo JSON não fica com cópias repetidas do produto.</li>
+  <li><strong><code>int</code> × <code>Integer</code>:</strong> <code>int</code> é um tipo primitivo e não aceita <code>null</code>. <code>Integer</code> é a classe "embrulho" (wrapper) e aceita. Usamos <code>Integer</code> onde o campo é opcional.</li>
+  <li><strong>Não herda de <code>Cadastro</code>:</strong> o item não tem nome próprio e não é cadastrado sozinho; ele só existe dentro de uma lista. Herança só faz sentido quando a filha "é um" tipo do pai.</li>
+</ul>
+
+<h3>3.5 <code>ValidacaoException</code>: erros de regra de negócio</h3>
+<pre>public class ValidacaoException extends RuntimeException {
+    public ValidacaoException(String mensagem) {
+        super(mensagem);
+    }
+}</pre>
+<p>Quando uma regra não é cumprida, o Model <strong>lança</strong> esta exceção com o texto exato do BDD. O controller
+<strong>captura</strong> e mostra o texto numa janela. Assim o Model não precisa saber que existe tela, e todas as
+mensagens ficam num lugar só.</p>
+
+<h3>3.6 <code>Repositorio</code>: onde os dados vivem e as regras são aplicadas</h3>
+<p>É a classe mais importante do Model. Ela guarda as <strong>quatro listas</strong> (os depósitos D1 a D4 do DFD) e
+tem um método para cada operação do sistema.</p>
+<pre>public class Repositorio {
+    private static final Repositorio INSTANCIA = new Repositorio();   // o único objeto
+
+    private final List&lt;ListaCompra&gt; listas = new ArrayList&lt;&gt;();              // D1
+    private final List&lt;Estabelecimento&gt; estabelecimentos = new ArrayList&lt;&gt;(); // D2
+    private final List&lt;Produto&gt; produtos = new ArrayList&lt;&gt;();                 // D3
+    private final List&lt;ItemLista&gt; itens = new ArrayList&lt;&gt;();                  // D4
+
+    private Repositorio() { }                        // ninguém de fora cria outro
+
+    public static Repositorio getInstancia() { return INSTANCIA; }
+
+    public List&lt;ListaCompra&gt; getListas() {
+        return Collections.unmodifiableList(listas); // só leitura para quem está fora
+    }</pre>
+<h4>Singleton</h4>
+<p>O construtor é <code>private</code>, então só a própria classe consegue fazer <code>new Repositorio()</code>, e ela
+faz isso uma única vez, na constante <code>INSTANCIA</code>. Todas as telas pegam o mesmo objeto com
+<code>getInstancia()</code>. Esse padrão de projeto se chama <strong>Singleton</strong>, e é ele que faz as telas
+enxergarem os mesmos dados.</p>
+<h4>Cadastrar uma lista: as regras em ordem</h4>
+<pre>public ListaCompra cadastrarLista(String nome) {
+    String nomeLimpo = exigirTexto(nome, "Informe o nome da lista");                     // RN006
+    recusarNomeRepetido(listas, nomeLimpo, null, "Já existe uma lista com esse nome");  // RN007
+
+    ListaCompra lista = new ListaCompra(proximoId(listas), nomeLimpo);
+    listas.add(lista);
+    gravar();                                                                            // RN074
+    return lista;
+}
+
+private void recusarNomeRepetido(List&lt;? extends Cadastro&gt; cadastros, String nome,
+                                 Cadastro ignorar, String mensagem) {
+    for (Cadastro cadastro : cadastros) {
+        if (cadastro != ignorar &amp;&amp; cadastro.temMesmoNome(nome)) {
+            throw new ValidacaoException(mensagem);
+        }
+    }
+}</pre>
+<ul>
+  <li><code>List&lt;? extends Cadastro&gt;</code> quer dizer "uma lista de qualquer filha de Cadastro". Por isso o mesmo método serve para listas, estabelecimentos e produtos.</li>
+  <li>O parâmetro <code>ignorar</code> serve para a edição: quem está sendo editado não conta como repetido de si mesmo (RN016: confirmar sem mudar o nome não acusa duplicidade).</li>
+  <li><code>proximoId</code> pega o maior id existente e soma 1.</li>
+</ul>
+<h4>Excluir: o exemplo principal de polimorfismo</h4>
+<pre>public boolean estaEmUso(Cadastro cadastro) {
+    for (ItemLista item : itens) {
+        if (cadastro.estaVinculadoA(item)) return true;   // cada tipo compara o seu id
+    }
+    return false;
+}
+
+public void excluir(Cadastro cadastro) {
+    if (estaEmUso(cadastro)) {
+        throw new ValidacaoException(cadastro.getMensagemEmUso()); // cada tipo tem a sua frase
+    }
+    listas.remove(cadastro);
+    estabelecimentos.remove(cadastro);
+    produtos.remove(cadastro);
+    gravar();
+}</pre>
+<p>O método recebe um <code>Cadastro</code> e não sabe se é lista, estabelecimento ou produto. Em tempo de execução,
+o Java chama a versão de <code>estaVinculadoA</code> e de <code>getMensagemEmUso</code> da classe verdadeira do objeto.
+O <code>remove</code> só acha o objeto na lista do tipo dele; nas outras duas ele não faz nada.</p>
+<h4>Incluir item: soma em vez de repetir (RN055)</h4>
+<pre>public ItemLista incluirItem(ListaCompra lista, Estabelecimento estabelecimento, Produto produto,
+                             double quantidade, Double valorUnitario) {
+    if (lista == null)   throw new ValidacaoException("Selecione a lista de compras");
+    if (produto == null) throw new ValidacaoException("Selecione o produto");
+    validarQuantidadeEValor(quantidade, valorUnitario);   // &gt; 0 e valor &gt;= 0
+
+    for (ItemLista item : itensDaLista(lista, estabelecimento)) {
+        if (produto.estaVinculadoA(item)) {      // o produto já está nesta lista e local
+            item.somarQuantidade(quantidade);    // 6 + 2 = 8, sem criar outro item
+            if (valorUnitario != null) item.setValorUnitario(valorUnitario);
+            gravar();
+            return item;
+        }
+    }
+    ... cria um ItemLista novo, guardando produto.getUnidade() (RN056) ...
+}</pre>
+<p>Os totais são somas simples: <code>somarQuantidades</code> soma as quantidades (RN061) e
+<code>somarValores</code> soma os subtotais (RN062).</p>
+<h4>Gravação a cada operação</h4>
+<p>Todo método que altera dados termina com <code>gravar()</code>, que pede à <code>Persistencia</code> para salvar o
+arquivo. Nos testes do Model a persistência fica nula, então nada é gravado.</p>
+
+<h3>3.7 <code>Persistencia</code>: o arquivo JSON com Gson</h3>
+<p><strong>JSON</strong> é um formato de texto para guardar dados, com chaves e valores. <strong>Gson</strong> é uma
+biblioteca do Google, adicionada no <code>pom.xml</code>, que transforma objetos Java em JSON (<code>toJson</code>) e
+JSON em objetos (<code>fromJson</code>).</p>
+<pre>private static class Dados {           // o "formato" do arquivo: as quatro listas
+    List&lt;ListaCompra&gt; listas = new ArrayList&lt;&gt;();
+    List&lt;Estabelecimento&gt; estabelecimentos = new ArrayList&lt;&gt;();
+    List&lt;Produto&gt; produtos = new ArrayList&lt;&gt;();
+    List&lt;ItemLista&gt; itens = new ArrayList&lt;&gt;();
+}
+
+public void salvar(Repositorio repositorio) {
+    Dados dados = new Dados();
+    dados.listas = new ArrayList&lt;&gt;(repositorio.getListas());
+    ...
+    Files.createDirectories(arquivo.getParent());               // cria a pasta "dados"
+    Files.writeString(arquivo, gson.toJson(dados), StandardCharsets.UTF_8);
+}
+
+public void carregar(Repositorio repositorio) {
+    if (!Files.exists(arquivo)) {            // RN076: primeira vez, cria vazio
+        ... salvar(repositorio); return;
+    }
+    try {
+        Dados dados = gson.fromJson(Files.readString(arquivo), Dados.class);
+        repositorio.substituirDados(...);
+    } catch (IOException | JsonParseException | IllegalStateException erro) {
+        guardarCopiaDoArquivoCorrompido();   // RN077: não perde o conteúdo
+        throw new ValidacaoException("O arquivo de dados está corrompido ...");
+    }
+}</pre>
+<p>Para o Gson criar os objetos ao ler o arquivo, cada classe do Model ganhou um <strong>construtor vazio
+privado</strong>. O Gson usa <em>reflexão</em> (a capacidade do Java de olhar e preencher os campos de uma classe em
+tempo de execução) para chamar esse construtor e preencher os campos, mesmo sendo <code>private</code>.</p>
+<pre>{
+  "listas": [ { "id": 1, "nome": "Compras da semana" } ],
+  "estabelecimentos": [ { "diasPromocao": [ "TUESDAY", "FRIDAY" ], "id": 1, "nome": "Mercado Central" } ],
+  "produtos": [ { "unidade": "PACOTE", "id": 1, "nome": "Arroz branco 5kg" } ],
+  "itens": [ { "id": 1, "idLista": 1, "idEstabelecimento": 1, "idProduto": 1,
+               "unidade": "PACOTE", "quantidade": 2.0, "valorUnitario": 24.9 } ]
+}</pre>
+
+<!-- ================================================================== 4 -->
+<h2 class="quebra">4. View: FXML, Scene Builder e CSS</h2>
+<p>As telas são arquivos <strong>FXML</strong>: um XML que descreve os componentes. Eles foram desenhados no
+<strong>Scene Builder</strong>, que gera esse XML, e por isso podem ser abertos e alterados visualmente.</p>
+<pre>&lt;VBox fx:controller="br.com.listacompras.controller.CadastroListaController" ...&gt;
+    &lt;TextField fx:id="campoNomeLista" promptText="Ex: Compras da semana" /&gt;
+    &lt;Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarLista" /&gt;
+    &lt;TableView fx:id="tabelaListas"&gt; ... &lt;/TableView&gt;
+&lt;/VBox&gt;</pre>
+<table>
+  <tr><th>No FXML</th><th>No controller</th><th>O que liga</th></tr>
+  <tr><td><code>fx:controller="...CadastroListaController"</code></td><td>a classe inteira</td><td>Qual classe controla esta tela</td></tr>
+  <tr><td><code>fx:id="campoNomeLista"</code></td><td><code>@FXML private TextField campoNomeLista;</code></td><td>O componente da tela vira um atributo do controller (o nome precisa ser igual)</td></tr>
+  <tr><td><code>onAction="#adicionarLista"</code></td><td><code>@FXML private void adicionarLista(ActionEvent e)</code></td><td>O clique chama este método</td></tr>
+</table>
+<p><code>@FXML</code> é uma <strong>anotação</strong>: avisa ao <code>FXMLLoader</code> que ele pode preencher aquele
+atributo (ou chamar aquele método) mesmo sendo <code>private</code>.</p>
+<h3>CSS</h3>
+<p>O <code>estilo.css</code> define as cores e formatos (classes como <code>.botao-principal</code> e
+<code>.cartao</code>). Um exemplo: os botões dos dias de promoção são <code>ToggleButton</code> (ficam pressionados),
+e a pseudo-classe <code>:selected</code> pinta de verde o dia marcado:</p>
+<pre>.botao-dia:selected {
+    -fx-background-color: #2F7A48;
+    -fx-text-fill: white;
+}</pre>
+
+<!-- ================================================================== 5 -->
+<h2>5. Controller: a ponte entre a tela e os dados</h2>
+
+<h3>5.1 O ciclo de vida de um controller</h3>
+<ol class="passo">
+  <li>O <code>FXMLLoader</code> lê o FXML e cria o controller.</li>
+  <li>Preenche os atributos <code>@FXML</code> com os componentes da tela.</li>
+  <li>Chama <code>initialize()</code>, porque o controller implementa a interface <code>Initializable</code>. É ali que configuramos as tabelas e carregamos os dados.</li>
+</ol>
+<div class="dica">Não dá para usar o construtor do controller para isso, porque quando o construtor roda os campos
+<code>@FXML</code> ainda estão <code>null</code>. O <code>initialize()</code> roda <strong>depois</strong> que eles foram preenchidos.</div>
+
+<h3>5.2 <code>CadastroListaController</code>: o modelo das telas de cadastro</h3>
+<pre>@Override
+public void initialize(URL url, ResourceBundle recursos) {
+    // Como cada coluna pega o valor de uma linha (lambda)
+    colunaNomeLista.setCellValueFactory(linha -&gt; new SimpleStringProperty(linha.getValue().getNome()));
+    colunaDetalhes.setCellValueFactory(linha -&gt; new SimpleStringProperty(linha.getValue().getDetalhe()));
+
+    // Botões Montar, Editar e Excluir em cada linha (RN080)
+    BotoesLinha.configurarColuna(colunaAcoes, this::montarLista, this::editarLista, this::excluirLista);
+
+    tabelaListas.setPlaceholder(new Label("Ainda não há listas cadastradas"));   // RN012
+    atualizarTabela();
+}
+
+@FXML
+private void adicionarLista(ActionEvent evento) {
+    try {
+        if (listaEmEdicao == null) {
+            repositorio.cadastrarLista(campoNomeLista.getText());
+            Mensagem.informar("Lista cadastrada com sucesso");
+        } else {
+            repositorio.alterarLista(listaEmEdicao, campoNomeLista.getText());
+            Mensagem.informar("Lista alterada com sucesso");
+        }
+        limparFormulario();
+        atualizarTabela();
+    } catch (ValidacaoException erro) {
+        Mensagem.avisar(erro.getMessage());    // texto do BDD vindo do Model
+    }
+}</pre>
+<ul>
+  <li><strong><code>setCellValueFactory</code></strong> diz à coluna como obter o texto de cada linha. <code>linha -&gt; ...</code> é uma <strong>lambda</strong>: uma função curta escrita no próprio lugar.</li>
+  <li><strong><code>this::editarLista</code></strong> é uma <strong>referência de método</strong>: passa o método como se fosse um valor, para ser chamado depois, quando o botão for clicado.</li>
+  <li><strong>Modo de edição:</strong> o atributo <code>listaEmEdicao</code> guarda qual lista está sendo editada. Se for <code>null</code>, o botão cadastra; se não, altera. Ao clicar em Editar, o nome vai para o campo, o botão vira "Salvar" e aparece "Cancelar".</li>
+  <li><strong>O controller não tem regra de negócio:</strong> ele não verifica se o nome está vazio nem se repete. Quem faz isso é o Repositorio. O controller só mostra o resultado.</li>
+</ul>
+<p>As telas de <strong>Estabelecimento</strong> e <strong>Produto</strong> seguem o mesmo modelo. O Estabelecimento
+usa um <code>Map&lt;DayOfWeek, ToggleButton&gt;</code> para ligar cada botão de dia ao dia da semana do Java, e
+assim descobre quais dias estão marcados com um <code>for</code>. O Produto monta um <strong>cartão</strong>
+(<code>VBox</code> com foto, descrição, unidade e botões) para cada produto, usa <code>FileChooser</code> para escolher a
+foto no computador e <code>TextInputDialog</code> para informar um link de imagem.</p>
+
+<h3>5.3 <code>ExclusaoCadastro</code>: uma exclusão para as três telas</h3>
+<pre>static boolean excluir(Cadastro cadastro, String tipo) {
+    if (!Mensagem.confirmar("Deseja realmente excluir " + tipo + " \"" + cadastro.getNome() + "\"?")) {
+        return false;                         // RN018/RN033/RN047: pede confirmação
+    }
+    try {
+        Repositorio.getInstancia().excluir(cadastro);
+        return true;
+    } catch (ValidacaoException erro) {
+        Mensagem.avisar(erro.getMessage());   // a frase de cada tipo (polimorfismo)
+        return false;
+    }
+}</pre>
+
+<h3>5.4 <code>CriarListaController</code>: a Movimentação</h3>
+<ul>
+  <li><strong>Listas suspensas com objetos:</strong> <code>ComboBox&lt;ListaCompra&gt;</code>, <code>ComboBox&lt;Estabelecimento&gt;</code> e <code>ComboBox&lt;Produto&gt;</code> guardam os próprios objetos, não textos. O que aparece escrito é o <code>toString()</code>.</li>
+  <li><strong>"Sem estabelecimento":</strong> como o estabelecimento é opcional (RN051), a primeira opção da lista é um objeto especial, a constante <code>SEM_ESTABELECIMENTO</code>, que nunca vai para o Repositorio. O método <code>estabelecimentoEscolhido()</code> troca essa opção por <code>null</code>.</li>
+  <li><strong>Ouvintes (listeners):</strong> ao trocar a lista ou o estabelecimento, a tabela é atualizada sozinha (RN058):
+    <pre>comboLista.valueProperty().addListener((propriedade, antes, depois) -&gt; atualizarTabela());</pre></li>
+  <li><strong>Ler números digitados:</strong> <code>lerNumero</code> aceita "4,50", "4.50" e "1.234,50". Texto que não é número vira <code>null</code>, e o sistema mostra a mensagem do BDD.</li>
+  <li><strong>Totais:</strong> <code>atualizarTabela()</code> pega os itens filtrados e preenche "TOTAL DE ITENS" e "VALOR TOTAL" usando o Repositorio e o <code>Formatador</code>.</li>
+  <li><strong>Receber a lista de outra tela:</strong> o método público <code>setListaSelecionada(lista)</code>, explicado na seção 7.</li>
+</ul>
+
+<h3>5.5 <code>MenuPrincipalController</code></h3>
+<p>Cada botão chama <code>Navegador.abrir(botao, "/view/....fxml")</code>. O botão Sair chama
+<code>Encerramento.confirmarSaida(...)</code> e, se a resposta for "Sim", <code>Platform.exit()</code> fecha o JavaFX.</p>
+
+<!-- ================================================================== 6 -->
+<h2 class="quebra">6. Classes de apoio (pacote <code>util</code>)</h2>
+
+<h3>6.1 <code>Navegador</code>: trocar de tela e devolver o controller</h3>
+<pre>public static &lt;T&gt; T abrir(Node componenteDaTela, String caminhoFxml) {
+    try {
+        FXMLLoader carregador = new FXMLLoader(Navegador.class.getResource(caminhoFxml));
+        Parent novaTela = carregador.load();
+        Stage palco = (Stage) componenteDaTela.getScene().getWindow();   // a janela atual
+        palco.setScene(new Scene(novaTela));                             // troca a cena
+        return carregador.getController();                               // devolve o controller
+    } catch (Exception erro) {
+        erro.printStackTrace();
+        Mensagem.avisar("Não foi possível abrir a tela " + caminhoFxml);
+        return null;
+    }
+}</pre>
+<ul>
+  <li><code>&lt;T&gt;</code> é um <strong>método genérico</strong>: o tipo de retorno é decidido por quem chama. Em <code>CriarListaController c = Navegador.abrir(...)</code>, o <code>T</code> vira <code>CriarListaController</code> sem precisar de conversão (cast).</li>
+  <li>Usamos <code>new FXMLLoader(...)</code> em vez do atalho <code>FXMLLoader.load(...)</code> porque só o objeto carregador sabe devolver o controller com <code>getController()</code>.</li>
+  <li>A partir de qualquer componente da tela, <code>getScene().getWindow()</code> chega à janela.</li>
+</ul>
+
+<h3>6.2 <code>Mensagem</code>: janelas de aviso e confirmação</h3>
+<pre>public static boolean confirmar(String pergunta) {
+    ButtonType sim = new ButtonType("Sim", ButtonData.YES);
+    ButtonType nao = new ButtonType("Não", ButtonData.NO);
+    Alert janela = new Alert(AlertType.CONFIRMATION, pergunta, sim, nao);
+    Optional&lt;ButtonType&gt; resposta = janela.showAndWait();   // espera o clique
+    return resposta.isPresent() &amp;&amp; resposta.get() == sim;
+}</pre>
+<p><code>showAndWait()</code> para o código até o usuário responder. <code>Optional</code> é um "pode ter ou não ter
+valor": fica vazio se o usuário fechar a janela no X, por isso verificamos <code>isPresent()</code>.</p>
+
+<h3>6.3 <code>BotoesLinha</code>: botões dentro da linha da tabela (RN080)</h3>
+<pre>coluna.setCellFactory(colunaDaTabela -&gt; new TableCell&lt;&gt;() {
+    private final HBox botoes = criar(
+            () -&gt; aoEditar.accept(getTableRow().getItem()),
+            () -&gt; aoExcluir.accept(getTableRow().getItem()));
+
+    @Override
+    protected void updateItem(Void item, boolean vazia) {
+        super.updateItem(item, vazia);
+        setGraphic(vazia ? null : botoes);   // linha vazia não mostra botões
+    }
+});</pre>
+<p><code>setCellFactory</code> ensina a tabela a <strong>desenhar</strong> as células de uma coluna. Aqui criamos uma
+<strong>classe anônima</strong> (uma filha de <code>TableCell</code> escrita no próprio lugar, sem nome) que coloca os
+botões. Ao clicar, <code>getTableRow().getItem()</code> pega o objeto da linha e entrega para o método recebido
+(<code>Consumer&lt;T&gt;</code> é "uma função que recebe um T e não devolve nada").</p>
+
+<h3>6.4 <code>Formatador</code> e <code>Encerramento</code></h3>
+<ul>
+  <li><code>Formatador.moeda(92.0)</code> devolve "R$ 92,00" no padrão brasileiro; <code>quantidade(1.5)</code> devolve "1,5"; <code>contador(3, "lista cadastrada", "listas cadastradas")</code> devolve "3 listas cadastradas".</li>
+  <li><code>Encerramento.confirmarSaida(cena)</code>: procura campos de texto preenchidos na tela (cadastro em andamento, RN072), pergunta se o usuário quer sair (RN070) e grava o arquivo antes de fechar (RN071). É usado pelo botão Sair e pelo X da janela.</li>
+</ul>
+<p>Essas classes têm <strong>construtor privado</strong> e só métodos <code>static</code>: são "caixas de ferramentas",
+ninguém precisa criar objetos delas.</p>
+
+<!-- ================================================================== 7 -->
+<h2>7. Três cliques acompanhados do começo ao fim</h2>
+
+<h3>7.1 Cadastrar a lista "Compras da semana"</h3>
+<ol class="passo">
+  <li>O usuário digita o nome e clica em <strong>+ Adicionar</strong>. O FXML tem <code>onAction="#adicionarLista"</code>, então o JavaFX chama esse método no controller.</li>
+  <li>O controller chama <code>repositorio.cadastrarLista(campoNomeLista.getText())</code>.</li>
+  <li>O Repositorio verifica se o nome está vazio e se repete. Se houver problema, lança <code>ValidacaoException</code>; o controller captura e mostra a mensagem.</li>
+  <li>Se estiver tudo certo, cria o objeto <code>ListaCompra</code>, adiciona na lista D1 e chama <code>gravar()</code>. O JSON é atualizado.</li>
+  <li>O controller mostra "Lista cadastrada com sucesso", limpa o campo e chama <code>atualizarTabela()</code>, que recarrega a tabela e o contador.</li>
+</ol>
+
+<h3>7.2 Botão Montar: passagem de dados entre telas</h3>
+<ol class="passo">
+  <li>Na tabela do Cadastro de Lista, o usuário clica em <strong>Montar</strong> na linha de "Compras da semana".</li>
+  <li>O <code>BotoesLinha</code> pega o objeto daquela linha e chama <code>montarLista(lista)</code>.</li>
+  <li><code>montarLista</code> abre a tela nova e recebe o controller dela:
+<pre>CriarListaController criarLista = Navegador.abrir(btnVoltar, "/view/CriarLista.fxml");
+criarLista.setListaSelecionada(lista);   // entrega o MESMO objeto para a outra tela</pre></li>
+  <li><code>setListaSelecionada</code> faz <code>comboLista.setValue(lista)</code>. O listener da lista suspensa percebe a mudança e chama <code>atualizarTabela()</code>, mostrando os itens daquela lista.</li>
+</ol>
+
+<h3>7.3 Tentar excluir uma lista que já tem itens</h3>
+<ol class="passo">
+  <li>Clique em <strong>Excluir</strong> na linha. O controller chama <code>ExclusaoCadastro.excluir(lista, "a lista")</code>.</li>
+  <li>Aparece "Deseja realmente excluir a lista "Compras da semana"?". O usuário clica em Sim.</li>
+  <li><code>repositorio.excluir(cadastro)</code> chama <code>estaEmUso</code>, que percorre os itens e pergunta <code>lista.estaVinculadoA(item)</code>. A lista compara o <code>idLista</code> do item e encontra um.</li>
+  <li>O Repositorio lança <code>new ValidacaoException(cadastro.getMensagemEmUso())</code>. Como o objeto é uma <code>ListaCompra</code>, a mensagem é "Não é possível excluir: a lista possui itens vinculados".</li>
+  <li>O <code>ExclusaoCadastro</code> captura e mostra o aviso. A lista continua cadastrada.</li>
+</ol>
+
+<!-- ================================================================== 8 -->
+<h2>8. Recursos da linguagem Java usados no projeto</h2>
+<table>
+  <tr><th>Recurso</th><th>Exemplo no projeto</th><th>Para que serve</th></tr>
+  <tr><td>Herança (<code>extends</code>)</td><td><code>ListaCompra extends Cadastro</code></td><td>Reaproveitar atributos e métodos do pai</td></tr>
+  <tr><td>Classe e método abstratos</td><td><code>abstract class Cadastro</code>, <code>abstract String getDetalhe()</code></td><td>Obrigar as filhas a implementar</td></tr>
+  <tr><td>Sobrescrita (<code>@Override</code>)</td><td><code>getDetalhe()</code> nas três filhas; <code>toString()</code></td><td>A filha troca o comportamento do pai</td></tr>
+  <tr><td>Sobrecarga</td><td><code>itensDaLista(lista)</code> e <code>itensDaLista(lista, estabelecimento)</code>; dois <code>configurarColuna</code></td><td>Mesmo nome, parâmetros diferentes</td></tr>
+  <tr><td>Interface</td><td>Controllers <code>implements Initializable</code></td><td>Contrato: "tenho o método initialize"</td></tr>
+  <tr><td>Enum</td><td><code>UnidadeMedida</code>, <code>DayOfWeek</code></td><td>Lista fechada de valores</td></tr>
+  <tr><td>Exceção própria</td><td><code>ValidacaoException extends RuntimeException</code></td><td>Avisar erro de regra com a mensagem pronta</td></tr>
+  <tr><td>Genéricos</td><td><code>List&lt;ListaCompra&gt;</code>, <code>&lt;T&gt; T abrir(...)</code>, <code>List&lt;? extends Cadastro&gt;</code></td><td>Código que funciona para vários tipos com segurança</td></tr>
+  <tr><td>Lambda</td><td><code>linha -&gt; new SimpleStringProperty(...)</code></td><td>Função curta passada como valor</td></tr>
+  <tr><td>Referência de método</td><td><code>this::editarLista</code></td><td>Passar um método existente como valor</td></tr>
+  <tr><td>Classe anônima</td><td><code>new TableCell&lt;&gt;() { ... }</code></td><td>Criar uma filha sem nome no próprio lugar</td></tr>
+  <tr><td>Classe interna estática</td><td><code>Persistencia.Dados</code></td><td>Classe auxiliar usada só dentro de outra</td></tr>
+  <tr><td><code>static</code> / Singleton</td><td><code>Repositorio.getInstancia()</code></td><td>Um único objeto compartilhado</td></tr>
+  <tr><td>Wrapper (<code>Integer</code>, <code>Double</code>)</td><td><code>Integer idEstabelecimento</code></td><td>Permitir <code>null</code> em campo opcional</td></tr>
+  <tr><td><code>Optional</code></td><td>Resposta do <code>Alert</code></td><td>Valor que pode não existir</td></tr>
+  <tr><td>Pattern matching do <code>instanceof</code></td><td><code>componente instanceof TextField campo</code> (em <code>Encerramento</code>)</td><td>Testar o tipo e já criar a variável</td></tr>
+</table>
+
+<!-- ================================================================== 9 -->
+<h2>9. Testes</h2>
+<table>
+  <tr><th>Teste</th><th>Como funciona</th><th>Resultado</th></tr>
+  <tr><td><code>TesteModel</code></td><td>Usa só o Model, sem abrir tela: cria listas, produtos e itens e confere as regras e os valores (R$ 92,00 → R$ 103,00 → R$ 82,80)</td><td>52/52</td></tr>
+  <tr><td><code>TesteTelasBDD</code></td><td>Abre as telas de verdade e segue os cenários H01 a H18 do documento de análise, clicando nos botões. Um "relógio" (<code>Timeline</code>) olha a cada 50 ms se apareceu uma janela de mensagem, guarda o texto e clica na resposta combinada</td><td>91/91</td></tr>
+</table>
+<p>Os dois rodam pelo IntelliJ: botão direito no arquivo &gt; Run. O teste das telas grava numa pasta temporária, então não mexe no <code>dados/lista_compras.json</code>.</p>
+
+<!-- ================================================================== 10 -->
+<h2>10. Limitações conhecidas</h2>
+<p>Se o professor perguntar "o que vocês melhorariam?", estas são respostas honestas:</p>
+<ul>
+  <li><strong>Dinheiro em <code>double</code>:</strong> <code>double</code> pode ter pequenos erros de arredondamento em contas com centavos. O correto em sistemas financeiros é <code>BigDecimal</code>. Usamos <code>double</code> pela simplicidade; a tela sempre arredonda para 2 casas.</li>
+  <li><strong>Foto guardada pelo caminho:</strong> o JSON guarda o caminho do arquivo da foto. Se a imagem for apagada ou movida, o sistema mostra a imagem padrão (RN090), mas a foto original se perde. Uma melhoria seria copiar a imagem para a pasta <code>dados</code>.</li>
+  <li><strong>Singleton:</strong> facilita a passagem de dados, mas deixa as classes dependentes de um objeto global, o que dificulta testes isolados.</li>
+  <li><strong>Grava o arquivo inteiro a cada operação:</strong> para o volume de uso pessoal é instantâneo (NF004), mas não escalaria para milhares de registros, onde um banco de dados seria o certo.</li>
+  <li><strong>Aviso no console:</strong> os FXML foram salvos por um Scene Builder mais novo (versão 26) e rodam no JavaFX 21. O aviso não afeta o funcionamento.</li>
+</ul>
+
+<!-- ================================================================== 11 -->
+<h2 class="quebra">11. Perguntas prováveis do professor e respostas</h2>
+<p>A etiqueta à direita indica quem do grupo deve responder, pela divisão do trabalho. Todos devem conhecer as de POO.</p>
+
+<h3>11.1 Orientação a Objetos</h3>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">1. Onde está a herança no sistema?</p>
+<p><code>Cadastro</code> é a classe pai, e <code>ListaCompra</code>, <code>Estabelecimento</code> e <code>Produto</code> herdam dela com
+<code>extends</code>. As três herdam o <code>id</code>, o <code>nome</code> e o método <code>temMesmoNome()</code>. Assim a regra de
+nome repetido (RN007, RN022, RN037) foi escrita uma vez só. Também há herança em <code>ValidacaoException extends RuntimeException</code>
+e em <code>App extends Application</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">2. Por que <code>Cadastro</code> é abstrata?</p>
+<p>Porque não existe um "cadastro genérico": todo objeto é uma lista, um estabelecimento ou um produto. Sendo abstrata, ninguém
+consegue fazer <code>new Cadastro()</code>. Além disso, ela declara métodos abstratos (<code>getDetalhe</code>,
+<code>getMensagemEmUso</code>, <code>estaVinculadoA</code>) que cada filha é obrigada a implementar.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">3. O que é polimorfismo e onde vocês usaram?</p>
+<p>Polimorfismo é chamar o mesmo método sobre uma variável do tipo do pai e cada objeto responder do seu jeito. No sistema:
+(1) a coluna "Detalhes" chama <code>getDetalhe()</code>, e a lista devolve "3 produtos — R$ 92,00", o estabelecimento "Ter, Sex" e o
+produto "Pacote"; (2) o método <code>excluir(Cadastro)</code> do Repositorio é um só para os três tipos e, se o cadastro estiver em uso,
+mostra <code>cadastro.getMensagemEmUso()</code>, que é a frase do BDD de cada tipo. O benefício é não ter <code>if</code> para
+descobrir o tipo e as três telas usarem o mesmo código.</p></div>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">4. Qual a diferença entre sobrescrita e sobrecarga? Tem as duas no projeto?</p>
+<p><strong>Sobrescrita</strong> (override) é a filha reescrever um método do pai com a mesma assinatura: <code>getDetalhe()</code> nas
+três filhas e <code>toString()</code> em <code>Cadastro</code>. <strong>Sobrecarga</strong> (overload) é ter dois métodos com o mesmo
+nome e parâmetros diferentes na mesma classe: <code>itensDaLista(lista)</code> e <code>itensDaLista(lista, estabelecimento)</code> no
+Repositorio, e os dois <code>configurarColuna</code> do <code>BotoesLinha</code> (com e sem o botão Montar).</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">5. Como vocês aplicaram o encapsulamento?</p>
+<p>Todos os atributos são <code>private</code> e acessados por getters e setters. Além disso: <code>getDiasPromocao()</code> devolve uma
+cópia da lista, e o Repositorio devolve as listas com <code>Collections.unmodifiableList</code>. Com isso, ninguém de fora consegue
+alterar os dados sem passar pelas regras de validação.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">6. Por que <code>ItemLista</code> não herda de <code>Cadastro</code>?</p>
+<p>Herança representa "é um". Um item não <em>é um</em> cadastro: ele não tem nome próprio, não é cadastrado sozinho e só existe dentro
+de uma lista. Ele é a associação entre lista, estabelecimento e produto (o depósito D4 do DFD).</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">7. Por que o item guarda os ids e não os objetos?</p>
+<p>Para não ter cópias. Se o produto for renomeado, todos os itens mostram o nome novo, porque buscam o produto pelo id na hora de
+exibir. No JSON também fica só o número, e não o produto inteiro repetido em cada item. É a mesma ideia de chave estrangeira em
+banco de dados.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Miguel</span>
+<p class="q">8. Por que a unidade de medida é um enum?</p>
+<p>Porque a RN038 diz que a unidade só pode ser uma de cinco opções. O enum é um tipo com valores fixos, então o Java não deixa usar
+outro valor. Ele também guarda o texto bonito ("Pacote") que aparece no ComboBox, pelo <code>toString()</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">9. Qual a diferença entre classe abstrata e interface? Vocês usaram interface?</p>
+<p>A classe abstrata pode ter atributos e métodos já prontos (como <code>id</code>, <code>nome</code> e <code>temMesmoNome</code>), e uma
+classe só pode herdar de uma. A interface é um contrato de métodos, e uma classe pode implementar várias. Usamos as duas: os
+controllers implementam a interface <code>Initializable</code> do JavaFX, e para o Model escolhemos a classe abstrata porque as
+filhas compartilham atributos e código.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">10. Para que serve o <code>super(id, nome)</code> e por que o construtor de <code>Cadastro</code> é <code>protected</code>?</p>
+<p><code>super(...)</code> chama o construtor do pai, que guarda o id e o nome (os atributos são <code>private</code> no pai, então só
+ele pode atribuir). É <code>protected</code> porque só as classes filhas precisam chamá-lo.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">11. Por que o <code>toString()</code> foi sobrescrito?</p>
+<p>O <code>ComboBox</code> usa o <code>toString()</code> do objeto para escrever cada opção. Sem sobrescrever, apareceria o nome da
+classe com um código (<code>ListaCompra@1b6d3586</code>). Sobrescrevendo, aparece o nome da lista.</p></div>
+
+<h3>11.2 JavaFX e Scene Builder</h3>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">12. Como o FXML se liga ao controller?</p>
+<p>Por três ligações: <code>fx:controller</code> no elemento raiz diz qual classe controla a tela; <code>fx:id="campoNomeLista"</code> liga o
+componente ao atributo <code>@FXML private TextField campoNomeLista</code> (o nome tem que ser igual); e
+<code>onAction="#adicionarLista"</code> liga o clique ao método <code>adicionarLista</code>. Quem faz tudo isso é o
+<code>FXMLLoader</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">13. O que são Stage, Scene e Parent?</p>
+<p><code>Stage</code> é a janela. <code>Scene</code> é o conteúdo que está na janela. <code>Parent</code> é o componente raiz da tela
+(no nosso caso um <code>VBox</code>), de onde saem todos os outros. Para trocar de tela, o <code>Navegador</code> coloca uma
+<code>Scene</code> nova no mesmo <code>Stage</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">14. Por que configurar a tela no <code>initialize()</code> e não no construtor do controller?</p>
+<p>Quando o construtor roda, o <code>FXMLLoader</code> ainda não preencheu os campos <code>@FXML</code>; eles estão <code>null</code>.
+O <code>initialize()</code> é chamado depois que todos os componentes já foram ligados.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">15. Como a tabela sabe o que mostrar em cada coluna?</p>
+<p>Pelo <code>setCellValueFactory</code>: para cada coluna passamos uma lambda que recebe a linha e devolve o valor. Por exemplo, a
+coluna Subtotal faz <code>Formatador.moeda(linha.getValue().getSubtotal())</code>. Os dados entram na tabela com
+<code>setItems(FXCollections.observableArrayList(...))</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Miguel</span>
+<p class="q">16. Como os botões Editar e Excluir ficam dentro da linha?</p>
+<p>A classe <code>BotoesLinha</code> usa <code>setCellFactory</code>, que define como a célula é desenhada. Criamos uma
+<code>TableCell</code> que mostra um <code>HBox</code> com os botões. No clique, <code>getTableRow().getItem()</code> pega o objeto daquela
+linha e chama o método do controller (passado como <code>this::editarLista</code>). Nos produtos, os botões ficam dentro de cada
+cartão.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">17. Por que existe a classe <code>Main</code>, se o <code>App</code> já tem um <code>main</code>?</p>
+<p>Quando a classe principal herda de <code>Application</code> e o JavaFX está no classpath (como no Maven), o Java dá o erro "JavaFX
+runtime components are missing". Começando por uma classe que não herda de <code>Application</code>, esse problema não acontece.</p></div>
+
+<h3>11.3 MVC e passagem de dados</h3>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">18. Explique o MVC no projeto de vocês.</p>
+<p>Model é o pacote <code>model</code>: os dados e as regras. View são os FXML feitos no Scene Builder, sem regra nenhuma.
+Controller é o pacote <code>controller</code>: recebe o clique, chama o Model e atualiza a tela. Por exemplo, a regra "nome
+obrigatório" está no Repositorio, e não no controller: se amanhã a tela mudar, a regra continua valendo.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">19. Como os dados passam de uma tela para outra?</p>
+<p>De duas formas. (1) Todas as telas usam o mesmo objeto <code>Repositorio</code> (Singleton), então trabalham com os mesmos objetos:
+um item incluído no Criar Lista aparece na hora no total do Cadastro de Lista. (2) Passagem direta de objeto: o botão Montar faz
+<code>Navegador.abrir(...)</code>, que devolve o controller da tela nova, e chama
+<code>criarLista.setListaSelecionada(lista)</code>, entregando o objeto <code>ListaCompra</code> escolhido.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">20. O que é o Singleton e por que usaram? Tem desvantagem?</p>
+<p>É um padrão em que a classe tem um único objeto para o sistema inteiro. No Repositorio, o construtor é <code>private</code> e o objeto
+fica numa constante <code>static</code>, entregue por <code>getInstancia()</code>. Usamos para que todas as telas compartilhem os
+mesmos dados. A desvantagem é que ele funciona como uma variável global, o que dificulta testar partes isoladas.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">21. Se eu incluir um item no Criar Lista, como o Cadastro de Lista fica sabendo?</p>
+<p>Ele não precisa ser avisado. O <code>getDetalhe()</code> da lista calcula o texto na hora, a partir dos itens que estão no
+Repositorio. Quando a tela Cadastro de Lista é aberta, a tabela chama <code>getDetalhe()</code> e já mostra o valor novo.</p></div>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">22. Por que não existe uma tela de Consulta separada?</p>
+<p>O documento de requisitos do grupo (Processo de Software) diz que o menu tem exatamente cinco opções (RN002) e que a consulta é
+exibida "na própria tela de cadastro, sem exigir uma ação extra do usuário" (RN010). Então a Consulta exigida pelo trabalho de
+Java está nas tabelas e nos cartões de cada tela de cadastro, e na tabela de itens do Criar Lista.</p></div>
+
+<h3>11.4 Persistência</h3>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">23. Onde e quando os dados são gravados?</p>
+<p>No arquivo <code>dados/lista_compras.json</code>, dentro da pasta do projeto. A gravação acontece a cada operação confirmada
+(RN074): todo método do Repositorio que altera dados termina com <code>gravar()</code>. Ao sair, o sistema grava de novo, por garantia
+(RN071). Ao abrir, o <code>App</code> carrega o arquivo antes de mostrar o menu (RN075).</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">24. Por que JSON? E o que é o Gson?</p>
+<p>JSON foi a decisão do documento de requisitos (NF001). É texto legível, dá para abrir e conferir. O Gson é uma biblioteca do Google
+que converte objetos Java em JSON (<code>toJson</code>) e JSON em objetos (<code>fromJson</code>), sem precisarmos escrever o arquivo
+na mão. Ela foi adicionada como dependência no <code>pom.xml</code>.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">25. O que acontece se o arquivo não existir? E se estiver estragado?</p>
+<p>Se não existir, o sistema cria o arquivo vazio, sem mensagem de erro (RN076). Se estiver corrompido, o sistema avisa o usuário, abre
+sem dados e guarda uma cópia <code>lista_compras.json.corrompido</code>, para o conteúdo não se perder na próxima gravação (RN077).</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">26. Como o Gson consegue criar os objetos se os atributos são privados?</p>
+<p>Ele usa reflexão, um recurso do Java que permite inspecionar e preencher os campos de uma classe em tempo de execução. Cada classe do
+Model tem um construtor vazio privado só para isso: o Gson cria o objeto vazio e preenche os campos com os valores do arquivo.</p></div>
+
+<h3>11.5 Regras de negócio</h3>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">27. Como o sistema impede nomes repetidos, mesmo com maiúsculas diferentes?</p>
+<p>O método herdado <code>temMesmoNome()</code> compara com <code>trim()</code> (tira os espaços das pontas) e
+<code>equalsIgnoreCase()</code> (ignora maiúsculas e minúsculas). O Repositorio percorre os cadastros do mesmo tipo e, se achar um
+igual, lança <code>ValidacaoException("Já existe uma lista com esse nome")</code>. Na edição, o próprio registro é ignorado.</p></div>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">28. Onde ficam as validações: no controller ou no model? Por quê?</p>
+<p>No Model (Repositorio). Assim a regra vale de qualquer lugar que chame o método, inclusive nos testes sem tela. O controller só
+captura a <code>ValidacaoException</code> e mostra a mensagem. A única validação no controller é transformar o texto digitado em
+número, porque isso é um assunto da tela.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">29. Por que a exceção herda de <code>RuntimeException</code> e não de <code>Exception</code>?</p>
+<p><code>Exception</code> é "verificada": o Java obriga a declarar <code>throws</code> em todo método por onde ela passa.
+<code>RuntimeException</code> não obriga, o que deixa o código mais limpo. Mesmo assim, os controllers capturam com
+<code>try/catch</code> em todas as operações.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">30. O que acontece se eu incluir um produto que já está na lista?</p>
+<p>O sistema não cria um item repetido: soma a quantidade ao item existente (RN055). Se o leite tinha 6 e incluo 2, passa a ter 8. Isso
+vale para a mesma lista e o mesmo estabelecimento; em outro estabelecimento é outro item.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">31. Como são calculados o subtotal e os totais?</p>
+<p>Subtotal = quantidade × valor unitário; sem valor informado, o subtotal é zero (RN060). Total de itens é a soma das quantidades
+(RN061) e valor total é a soma dos subtotais (RN062), considerando só os itens exibidos (lista e estabelecimento escolhidos). Exemplo
+do BDD: 2 × 24,90 + 6 × 5,50 + 4 × 2,30 = R$ 92,00 e 12 itens.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Miguel</span>
+<p class="q">32. Por que não dá para excluir um produto que está numa lista? Como o sistema sabe?</p>
+<p>Para não deixar itens apontando para um produto que não existe mais (integridade dos dados). O método <code>estaEmUso</code> percorre os
+itens perguntando <code>produto.estaVinculadoA(item)</code>, que compara o <code>idProduto</code>. Se achar, lança a mensagem "Não é
+possível excluir: o produto está incluído em uma lista".</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Miguel</span>
+<p class="q">33. Se eu mudar a unidade de um produto que já está numa lista, o que acontece com os itens?</p>
+<p>O sistema avisa que "o produto já está em listas montadas" (RN046) e os itens continuam como estavam, porque cada item guardou a
+unidade que o produto tinha no momento da inclusão (RN056). A quantidade lançada não muda.</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Miguel</span>
+<p class="q">34. Como funciona a foto do produto?</p>
+<p>É opcional. O botão "Escolher foto" abre um <code>FileChooser</code> filtrado para JPEG e PNG; o botão "Usar link" aceita um endereço de
+imagem. O produto guarda o caminho ou o link. Se não houver foto ou a imagem não carregar, aparece a imagem padrão
+<code>produto_padrao.png</code> (RN040, RN090).</p></div>
+
+<div class="pergunta"><span class="quem">Gustavo Pereira</span>
+<p class="q">35. O que acontece quando clico em Sair?</p>
+<p>A classe <code>Encerramento</code> pergunta se o usuário quer sair (RN070). Se houver algum campo digitado e não confirmado, a pergunta
+avisa disso (RN072). Se o usuário confirmar, o sistema grava o arquivo (RN071) e o <code>Platform.exit()</code> fecha a aplicação. O X da
+janela usa as mesmas regras.</p></div>
+
+<h3>11.6 Código e recursos do Java</h3>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">36. O que significa <code>linha -&gt; new SimpleStringProperty(...)</code>? E <code>this::editarLista</code>?</p>
+<p>O primeiro é uma <strong>lambda</strong>: uma função curta, escrita no próprio lugar, que recebe <code>linha</code> e devolve o valor da
+coluna. O segundo é uma <strong>referência de método</strong>: passa o método <code>editarLista</code> como valor, para ser chamado depois,
+quando o botão for clicado.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">37. O que é o <code>&lt;T&gt;</code> no <code>Navegador.abrir</code>?</p>
+<p>É um método genérico: o tipo de retorno é decidido por quem chama. Escrevendo
+<code>CriarListaController c = Navegador.abrir(...)</code>, o Java entende que <code>T</code> é <code>CriarListaController</code> e não precisa
+de conversão (cast). Assim o mesmo método serve para abrir qualquer tela.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">38. Por que <code>Double</code> (com D maiúsculo) no valor unitário?</p>
+<p>Porque o valor é opcional. O tipo primitivo <code>double</code> não aceita <code>null</code>; a classe <code>Double</code> aceita. Com
+<code>null</code> sabemos que o usuário não informou o valor, o que é diferente de ter informado zero.</p></div>
+
+<div class="pergunta"><span class="quem">João Pedro</span>
+<p class="q">39. Como a opção "Sem estabelecimento" funciona, se ela não está cadastrada?</p>
+<p>É um objeto <code>Estabelecimento</code> criado só para a tela (a constante <code>SEM_ESTABELECIMENTO</code>) e colocado como primeira opção
+do ComboBox. Ele nunca vai para o Repositorio: o método <code>estabelecimentoEscolhido()</code> troca essa opção por <code>null</code> antes de
+chamar o Model.</p></div>
+
+<h3>11.7 Testes, decisões e melhorias</h3>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">40. Como vocês testaram o sistema?</p>
+<p>Com dois testes automáticos. O <code>TesteModel</code> testa as regras sem abrir telas (52 verificações). O <code>TesteTelasBDD</code> abre as
+telas e segue os cenários H01 a H18 do documento de análise, com os mesmos dados e mensagens, clicando nos botões (91 verificações).
+Todos passaram. Também testamos manualmente seguindo o roteiro da apresentação.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">41. Se precisassem de um novo tipo de cadastro, por exemplo Categoria, o que mudaria?</p>
+<p>Criaríamos <code>Categoria extends Cadastro</code> e implementaríamos os três métodos abstratos. A regra de nome repetido, a exclusão com
+confirmação e o bloqueio de exclusão em uso já funcionariam sem mudar o <code>ExclusaoCadastro</code> nem o <code>excluir(Cadastro)</code>,
+graças à herança e ao polimorfismo. Faltaria a lista no Repositorio, a tela FXML e o controller.</p></div>
+
+<div class="pergunta"><span class="quem">Aguinaldo</span>
+<p class="q">42. O que vocês melhorariam?</p>
+<p>Usar <code>BigDecimal</code> para valores em dinheiro (o <code>double</code> pode ter erros de arredondamento), copiar a foto para a pasta
+<code>dados</code> em vez de guardar só o caminho, e, se o volume de dados crescer, trocar o arquivo JSON por um banco de dados. Ver a
+seção 10.</p></div>
+
+<div class="pergunta"><span class="quem">Todos</span>
+<p class="q">43. Abra o Scene Builder e mostre como um componente se liga ao código.</p>
+<p>Abrir <code>CriarLista.fxml</code>, selecionar o botão "+ Adicionar item" e mostrar, no painel <em>Code</em>, o <code>fx:id</code>
+<code>btnAdicionarItem</code> e o <code>On Action</code> <code>#adicionarItem</code>. Depois mostrar no
+<code>CriarListaController</code> o atributo <code>@FXML private Button btnAdicionarItem</code> e o método
+<code>adicionarItem</code>.</p></div>
+
+<!-- ================================================================== 12 -->
+<h2>12. Glossário rápido</h2>
+<table>
+  <tr><th>Termo</th><th>Significado</th></tr>
+  <tr><td>Atributo</td><td>Variável que pertence ao objeto (ex.: <code>nome</code>)</td></tr>
+  <tr><td>Classe abstrata</td><td>Classe que não pode virar objeto; serve de modelo para as filhas</td></tr>
+  <tr><td>Construtor</td><td>Método especial que roda ao criar o objeto com <code>new</code></td></tr>
+  <tr><td>Controller</td><td>Classe que responde aos eventos de uma tela</td></tr>
+  <tr><td>Enum</td><td>Tipo com uma lista fixa de valores</td></tr>
+  <tr><td>Exceção</td><td>Objeto que representa um erro; é "lançado" com <code>throw</code> e "capturado" com <code>catch</code></td></tr>
+  <tr><td>FXML</td><td>Arquivo XML que descreve uma tela JavaFX</td></tr>
+  <tr><td>Genérico</td><td>Código parametrizado por tipo, como <code>List&lt;Produto&gt;</code></td></tr>
+  <tr><td>Gson</td><td>Biblioteca que converte objetos Java em JSON e vice-versa</td></tr>
+  <tr><td>JSON</td><td>Formato de texto para guardar dados em chaves e valores</td></tr>
+  <tr><td>Lambda</td><td>Função curta escrita no próprio lugar: <code>x -&gt; x * 2</code></td></tr>
+  <tr><td>Listener</td><td>Código que "escuta" uma mudança e reage a ela</td></tr>
+  <tr><td>Maven / pom.xml</td><td>Ferramenta que baixa as bibliotecas e compila o projeto</td></tr>
+  <tr><td>Polimorfismo</td><td>Mesma chamada, comportamentos diferentes conforme o objeto real</td></tr>
+  <tr><td>Reflexão</td><td>Capacidade do Java de examinar e alterar classes em tempo de execução</td></tr>
+  <tr><td>Scene / Stage</td><td>Conteúdo da janela / a janela</td></tr>
+  <tr><td>Singleton</td><td>Padrão em que a classe tem um único objeto</td></tr>
+  <tr><td>Wrapper</td><td>Classe que embrulha um primitivo: <code>Integer</code>, <code>Double</code></td></tr>
+</table>
+
+</body>
+</html>

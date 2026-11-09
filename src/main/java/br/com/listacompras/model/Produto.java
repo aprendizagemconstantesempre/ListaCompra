@@ -21,6 +21,10 @@ public class Produto extends Cadastro {
         this.caminhoFoto = caminhoFoto;
     }
 
+    /** Construtor vazio usado pelo Gson ao ler o arquivo JSON. */
+    private Produto() {
+    }
+
     public String getDescricao() {
         return getNome();
     }

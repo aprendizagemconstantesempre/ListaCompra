@@ -31,6 +31,10 @@ public abstract class Cadastro {
         this.nome = nome;
     }
 
+    /** Construtor vazio usado pelo Gson ao ler o arquivo JSON (a Persistencia preenche os campos). */
+    protected Cadastro() {
+    }
+
     public int getId() {
         return id;
     }

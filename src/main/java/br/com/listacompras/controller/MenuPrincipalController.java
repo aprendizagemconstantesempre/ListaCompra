@@ -1,5 +1,6 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.util.Encerramento;
 import br.com.listacompras.util.Navegador;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -42,7 +43,10 @@ public class MenuPrincipalController {
 
     @FXML
     private void sairDoSistema(ActionEvent evento) {
-        // Encerramos a aplicacao conforme o requisito RF018
-        Platform.exit();
+        // Encerramos a aplicacao conforme o requisito RF018: confirma (RN070),
+        // grava o arquivo (RN071) e so depois fecha
+        if (Encerramento.confirmarSaida(btnSair.getScene())) {
+            Platform.exit();
+        }
     }
 }

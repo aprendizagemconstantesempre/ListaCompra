@@ -1,5 +1,10 @@
 package br.com.listacompras;
 
+import br.com.listacompras.model.Persistencia;
+import br.com.listacompras.model.Repositorio;
+import br.com.listacompras.model.ValidacaoException;
+import br.com.listacompras.util.Encerramento;
+import br.com.listacompras.util.Mensagem;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +19,15 @@ public class App extends Application {
 
     @Override
     public void start(Stage palco) throws Exception {
+        // Antes de mostrar qualquer tela, carregamos os dados do arquivo JSON (RN075).
+        // Se o arquivo nao existir, ele e criado vazio (RN076).
+        try {
+            Repositorio.getInstancia().ativarGravacao(new Persistencia(Persistencia.ARQUIVO_PADRAO));
+        } catch (ValidacaoException erro) {
+            // Arquivo corrompido (RN077): avisamos e o sistema abre sem dados
+            Mensagem.avisar(erro.getMessage());
+        }
+
         // Carregamos o arquivo FXML da tela principal, que o Scene Builder gerou
         Parent raiz = FXMLLoader.load(getClass().getResource("/view/MenuPrincipal.fxml"));
 
@@ -21,6 +35,14 @@ public class App extends Application {
         Scene cena = new Scene(raiz);
         palco.setTitle("Lista de Compras");
         palco.setScene(cena);
+
+        // Fechar pelo "X" da janela segue as mesmas regras do botao Sair (RN070 a RN072)
+        palco.setOnCloseRequest(evento -> {
+            if (!Encerramento.confirmarSaida(palco.getScene())) {
+                evento.consume(); // consume() cancela o fechamento
+            }
+        });
+
         palco.show();
     }
 

@@ -25,6 +25,14 @@ public final class Formatador {
         return String.format(BRASIL, "R$ %,.2f", valor);
     }
 
+    /**
+     * Texto do contador das telas (RN011, RN028, RN042), no singular ou no plural.
+     * Exemplo: contador(3, "lista cadastrada", "listas cadastradas") -> "3 listas cadastradas".
+     */
+    public static String contador(int quantidade, String singular, String plural) {
+        return quantidade + " " + (quantidade == 1 ? singular : plural);
+    }
+
     /** 12.0 -> "12" e 1.25 -> "1,25". */
     public static String quantidade(double quantidade) {
         return QUANTIDADE.format(quantidade);

@@ -40,6 +40,9 @@
             <TextField fx:id="campoNomeLista" promptText="Ex: Compras da semana" HBox.hgrow="ALWAYS" />
             <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarLista"
                     styleClass="botao-principal" prefWidth="130" />
+            <!-- So aparece enquanto uma lista esta sendo editada -->
+            <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelarEdicao"
+                    styleClass="botao-secundario" prefWidth="110" visible="false" managed="false" />
         </HBox>
     </VBox>
 
@@ -49,15 +52,15 @@
     <HBox alignment="CENTER_LEFT">
         <Label text="Listas cadastradas" styleClass="titulo-secao" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="rotuloContador" text="0 lista(s)" styleClass="contador" />
+        <Label fx:id="rotuloContador" text="0 listas cadastradas" styleClass="contador" />
     </HBox>
 
     <!-- Tabela que mostra todas as listas ja cadastradas (RF003) -->
     <TableView fx:id="tabelaListas" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colunaNomeLista" text="NOME DA LISTA" prefWidth="380" />
-            <TableColumn fx:id="colunaDetalhes" text="DETALHES" prefWidth="290" />
-            <TableColumn fx:id="colunaAcoes" text="AÇÕES" prefWidth="150" sortable="false" />
+            <TableColumn fx:id="colunaNomeLista" text="NOME DA LISTA" prefWidth="330" />
+            <TableColumn fx:id="colunaDetalhes" text="DETALHES" prefWidth="250" />
+            <TableColumn fx:id="colunaAcoes" text="AÇÕES" prefWidth="240" sortable="false" />
         </columns>
     </TableView>
 

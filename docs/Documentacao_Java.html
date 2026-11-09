@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lista de Compras — Documentação</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: #0f5132; }
+  h2 { font-size: 14pt; color: #0f5132; border-bottom: 2px solid #cfe3d8; padding-bottom: 3px; margin-top: 26px; break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 16px 0 4px; break-after: avoid; }
+  p { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9.5pt; break-inside: avoid; }
+  th, td { border: 1px solid #c9d3dc; padding: 4px 7px; text-align: left; vertical-align: top; }
+  th { background: #e8f2ec; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: #f1f4f6; padding: 0 3px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 8.6pt; background: #f6f8fa; border: 1px solid #dde3e8; border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; break-inside: avoid; }
+  .capa { text-align: center; padding-top: 60mm; break-after: page; }
+  .capa h1 { font-size: 30pt; }
+  .capa .sub { font-size: 13pt; color: #52606d; margin-top: 6px; }
+  .capa .grupo { margin-top: 60mm; font-size: 11pt; }
+  .nota { background: #fff8e6; border-left: 4px solid #e0a800; padding: 6px 10px; margin: 10px 0; break-inside: avoid; }
+  .ok { color: #0f7a3d; font-weight: 600; }
+  figure { margin: 10px 0; text-align: center; break-inside: avoid; }
+  figcaption { font-size: 9pt; color: #52606d; }
+  ul, ol { margin: 4px 0 8px 20px; padding: 0; }
+  li { margin: 2px 0; }
+  .quebra { break-before: page; }
+</style>
+</head>
+<body>
+
+<div class="capa">
+  <h1>Lista de Compras</h1>
+  <div class="sub">Trabalho Bimestral — Paradigma de Programação</div>
+  <div class="sub">Aplicação desktop em Java com JavaFX, Scene Builder e Programação Orientada a Objetos</div>
+  <div class="grupo">
+    <strong>Integrantes</strong><br>
+    Aguinaldo Alves<br>
+    Gustavo Pereira<br>
+    Gustavo Miguel<br>
+    João Pedro<br><br>
+    Novembro de 2026
+  </div>
+</div>
+
+<h2>1. Integrantes e divisão do trabalho</h2>
+<table>
+  <tr><th>Integrante</th><th>Parte do sistema</th><th>Histórias (BDD)</th></tr>
+  <tr><td>Aguinaldo Alves</td><td>Model (<code>Cadastro</code> e filhas, <code>ItemLista</code>, <code>Repositorio</code>), <code>Persistencia</code> (JSON), <code>Navegador</code> com passagem de dados, janelas de confirmação</td><td>NF001 (RN074–RN077)</td></tr>
+  <tr><td>Gustavo Pereira</td><td>Menu principal, Sair do sistema e tela Cadastrar lista de compras</td><td>H01–H05, H18</td></tr>
+  <tr><td>Gustavo Miguel</td><td>Telas Cadastrar estabelecimento e Cadastrar produto (com foto e imagem padrão)</td><td>H06–H13</td></tr>
+  <tr><td>João Pedro</td><td>Tela Criar lista de compras: incluir, consultar, editar e excluir itens, com totalizadores</td><td>H14–H17</td></tr>
+</table>
+
+<h2>2. Funcionamento do sistema</h2>
+<p>O <strong>Lista de Compras</strong> ajuda o usuário a organizar as compras da casa. Ele cadastra as
+<strong>listas</strong> (por exemplo, "Compras da semana"), os <strong>estabelecimentos</strong> onde costuma comprar,
+com os dias de promoção, e os <strong>produtos</strong>, com foto, descrição e unidade de medida. Depois ele
+<strong>monta a lista</strong>: escolhe a lista e, se quiser, o estabelecimento, e inclui os produtos com quantidade e
+valor. O sistema calcula o subtotal de cada item, o total de itens e o valor total da compra.</p>
+<p>Em todas as telas de cadastro o usuário pode incluir, consultar, editar e excluir. Exclusões e a saída do sistema
+sempre pedem confirmação. Um cadastro que já está sendo usado em algum item não pode ser excluído. Todos os dados
+ficam gravados no arquivo <code>dados/lista_compras.json</code> e voltam quando o sistema é aberto de novo.</p>
+<p>A aplicação roda offline, em Windows com Java instalado, para um único usuário e sem login.</p>
+
+<h3>Telas</h3>
+<table>
+  <tr><th>Tela</th><th>Papel no trabalho de Java</th><th>O que faz</th></tr>
+  <tr><td>Menu principal</td><td>Navegação</td><td>Cinco opções fixas: cadastrar lista, cadastrar estabelecimento, cadastrar produto, criar lista e sair</td></tr>
+  <tr><td>Cadastrar lista de compras</td><td><strong>Cadastro + Consulta</strong></td><td>Inclui, edita e exclui listas. A tabela mostra cada lista com a quantidade de produtos e o valor total, e tem o botão <strong>Montar</strong></td></tr>
+  <tr><td>Cadastrar estabelecimento</td><td><strong>Cadastro + Consulta</strong></td><td>Nome e dias de promoção (Dom a Sáb). A tabela mostra os dias na ordem da semana</td></tr>
+  <tr><td>Cadastrar produto</td><td><strong>Cadastro + Consulta</strong></td><td>Foto (arquivo JPEG/PNG ou link), descrição e unidade. Os produtos aparecem em cartões; sem foto, aparece a imagem padrão</td></tr>
+  <tr><td>Criar lista de compras</td><td><strong>Movimentação + Consulta</strong></td><td>Inclui, edita e exclui itens da lista, com subtotal, total de itens e valor total</td></tr>
+</table>
+
+<h2>3. Estrutura das classes</h2>
+<p>O projeto segue o padrão <strong>MVC</strong>:</p>
+<table>
+  <tr><th>Camada</th><th>Pacote / pasta</th><th>Conteúdo</th></tr>
+  <tr><td>Model</td><td><code>br.com.listacompras.model</code></td><td><code>Cadastro</code> (abstrata), <code>ListaCompra</code>, <code>Estabelecimento</code>, <code>Produto</code>, <code>ItemLista</code>, <code>UnidadeMedida</code> (enum), <code>Repositorio</code>, <code>Persistencia</code>, <code>ValidacaoException</code></td></tr>
+  <tr><td>View</td><td><code>src/main/resources/view</code></td><td>Cinco arquivos FXML feitos no Scene Builder, mais o <code>css/estilo.css</code></td></tr>
+  <tr><td>Controller</td><td><code>br.com.listacompras.controller</code></td><td>Um controller por tela, mais <code>ExclusaoCadastro</code> (exclusão comum às três telas de cadastro)</td></tr>
+  <tr><td>Utilitários</td><td><code>br.com.listacompras.util</code></td><td><code>Navegador</code> (troca de tela), <code>Mensagem</code> (avisos e confirmações), <code>BotoesLinha</code> (botões na linha), <code>Formatador</code> (R$ e quantidades), <code>Encerramento</code> (regras de saída)</td></tr>
+</table>
+
+<figure>
+<svg width="640" height="330" viewBox="0 0 640 330" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+  <defs>
+    <marker id="heranca" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto">
+      <path d="M1,1 L13,6 L1,11 Z" fill="#fff" stroke="#1f2933"/>
+    </marker>
+    <marker id="seta" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#1f2933"/>
+    </marker>
+  </defs>
+  <!-- Cadastro -->
+  <rect x="230" y="10" width="190" height="88" fill="#e8f2ec" stroke="#0f5132"/>
+  <text x="325" y="27" text-anchor="middle" font-weight="bold" font-style="italic">Cadastro (abstrata)</text>
+  <line x1="230" y1="33" x2="420" y2="33" stroke="#0f5132"/>
+  <text x="238" y="48">- id, nome</text>
+  <text x="238" y="62">+ temMesmoNome(String)</text>
+  <text x="238" y="76" font-style="italic">+ getDetalhe(), getMensagemEmUso()</text>
+  <text x="238" y="90" font-style="italic">+ estaVinculadoA(ItemLista)</text>
+  <!-- filhas -->
+  <rect x="20" y="150" width="170" height="52" fill="#fff" stroke="#1f2933"/>
+  <text x="105" y="167" text-anchor="middle" font-weight="bold">ListaCompra</text>
+  <text x="105" y="183" text-anchor="middle">"3 produtos — R$ 92,00"</text>
+  <rect x="240" y="150" width="170" height="52" fill="#fff" stroke="#1f2933"/>
+  <text x="325" y="167" text-anchor="middle" font-weight="bold">Estabelecimento</text>
+  <text x="325" y="183" text-anchor="middle">- diasPromocao  "Ter, Sex"</text>
+  <rect x="460" y="150" width="170" height="52" fill="#fff" stroke="#1f2933"/>
+  <text x="545" y="167" text-anchor="middle" font-weight="bold">Produto</text>
+  <text x="545" y="183" text-anchor="middle">- unidade, caminhoFoto  "Pacote"</text>
+  <line x1="105" y1="150" x2="290" y2="99" stroke="#1f2933" marker-end="url(#heranca)"/>
+  <line x1="325" y1="150" x2="325" y2="99" stroke="#1f2933" marker-end="url(#heranca)"/>
+  <line x1="545" y1="150" x2="360" y2="99" stroke="#1f2933" marker-end="url(#heranca)"/>
+  <!-- ItemLista -->
+  <rect x="20" y="250" width="200" height="66" fill="#fff" stroke="#1f2933"/>
+  <text x="120" y="267" text-anchor="middle" font-weight="bold">ItemLista</text>
+  <text x="28" y="283">- idLista, idEstabelecimento, idProduto</text>
+  <text x="28" y="297">- unidade, quantidade, valorUnitario</text>
+  <text x="28" y="311">+ getSubtotal()</text>
+  <!-- Repositorio -->
+  <rect x="270" y="250" width="180" height="66" fill="#fff" stroke="#1f2933"/>
+  <text x="360" y="267" text-anchor="middle" font-weight="bold">Repositorio (único)</text>
+  <text x="278" y="283">- listas (D1), estabelecimentos (D2)</text>
+  <text x="278" y="297">- produtos (D3), itens (D4)</text>
+  <text x="278" y="311">+ excluir(Cadastro)</text>
+  <!-- Persistencia -->
+  <rect x="490" y="250" width="140" height="66" fill="#fff" stroke="#1f2933"/>
+  <text x="560" y="267" text-anchor="middle" font-weight="bold">Persistencia</text>
+  <text x="498" y="283">+ carregar(Repositorio)</text>
+  <text x="498" y="297">+ salvar(Repositorio)</text>
+  <text x="498" y="311">lista_compras.json</text>
+  <line x1="270" y1="283" x2="221" y2="283" stroke="#1f2933" marker-end="url(#seta)"/>
+  <line x1="450" y1="283" x2="489" y2="283" stroke="#1f2933" marker-end="url(#seta)"/>
+  <line x1="120" y1="250" x2="105" y2="203" stroke="#1f2933" stroke-dasharray="4 3"/>
+  <text x="122" y="232" font-size="10" fill="#52606d">ligado pelos ids</text>
+</svg>
+<figcaption>Figura 1 — Classes do Model. O triângulo indica herança; as setas indicam uso.</figcaption>
+</figure>
+
+<h3>Depósitos do DFD e classes</h3>
+<p>Os quatro depósitos de dados do DFD (trabalho de Processo de Software) viraram as quatro listas do
+<code>Repositorio</code> e as quatro partes do arquivo JSON:</p>
+<table>
+  <tr><th>Depósito do DFD</th><th>Classe</th><th>Lista no Repositorio</th><th>Chave no JSON</th></tr>
+  <tr><td>D1 Listas de compras</td><td><code>ListaCompra</code></td><td><code>listas</code></td><td><code>"listas"</code></td></tr>
+  <tr><td>D2 Estabelecimentos</td><td><code>Estabelecimento</code></td><td><code>estabelecimentos</code></td><td><code>"estabelecimentos"</code></td></tr>
+  <tr><td>D3 Produtos</td><td><code>Produto</code></td><td><code>produtos</code></td><td><code>"produtos"</code></td></tr>
+  <tr><td>D4 Itens da lista</td><td><code>ItemLista</code></td><td><code>itens</code></td><td><code>"itens"</code></td></tr>
+</table>
+
+<h2>4. Conceitos de Programação Orientada a Objetos</h2>
+<table>
+  <tr><th>Conceito</th><th>Onde aparece no projeto</th></tr>
+  <tr><td>Classe e objeto</td><td>Cada lista, estabelecimento, produto e item cadastrado é um objeto das classes do Model</td></tr>
+  <tr><td>Encapsulamento</td><td>Todos os atributos são <code>private</code> e só são acessados por getters e setters. O <code>Repositorio</code> devolve listas que não podem ser alteradas por fora (<code>Collections.unmodifiableList</code>), então toda mudança passa pelas regras de negócio</td></tr>
+  <tr><td>Abstração</td><td><code>Cadastro</code> é <code>abstract</code>: não existe um "cadastro genérico", só listas, estabelecimentos e produtos</td></tr>
+  <tr><td>Herança</td><td><code>ListaCompra</code>, <code>Estabelecimento</code> e <code>Produto</code> estendem <code>Cadastro</code>. <code>ValidacaoException</code> estende <code>RuntimeException</code>. <code>App</code> estende <code>Application</code> do JavaFX</td></tr>
+  <tr><td>Polimorfismo</td><td><code>getDetalhe()</code>, <code>getMensagemEmUso()</code> e <code>estaVinculadoA()</code>, chamados sobre uma variável do tipo <code>Cadastro</code> (seção 7)</td></tr>
+  <tr><td>Enumeração</td><td><code>UnidadeMedida</code>: a unidade só pode ser uma das cinco previstas (RN038)</td></tr>
+  <tr><td>Tratamento de exceções</td><td>As regras de negócio lançam <code>ValidacaoException</code> com a mensagem do BDD; os controllers capturam e mostram na tela</td></tr>
+  <tr><td>Padrão Singleton</td><td><code>Repositorio.getInstancia()</code>: um único repositório para o sistema inteiro</td></tr>
+</table>
+
+<h2>5. Passagem de dados entre telas</h2>
+<p>As telas trabalham com <strong>os mesmos objetos</strong>. O caminho de um dado é este:</p>
+<table>
+  <tr><th>Etapa</th><th>Como acontece</th></tr>
+  <tr><td><strong>Criado</strong></td><td>Na tela Cadastrar lista, o controller chama <code>repositorio.cadastrarLista("Compras da semana")</code>, que valida e cria o objeto <code>ListaCompra</code></td></tr>
+  <tr><td><strong>Armazenado</strong></td><td>O objeto fica na lista <code>listas</code> (D1) do único <code>Repositorio</code> e é gravado no JSON na hora (RN074)</td></tr>
+  <tr><td><strong>Enviado</strong></td><td>O botão <strong>Montar</strong> da linha abre a tela Criar lista e entrega o objeto para ela:
+    <pre>CriarListaController criarLista = Navegador.abrir(btnVoltar, "/view/CriarLista.fxml");
+criarLista.setListaSelecionada(lista);</pre>
+    O <code>Navegador.abrir</code> usa um objeto <code>FXMLLoader</code>, carrega a tela nova e devolve o controller dela com <code>getController()</code></td></tr>
+  <tr><td><strong>Recuperado</strong></td><td><code>setListaSelecionada</code> coloca o objeto na lista suspensa, e a tela já mostra os itens daquela lista. As listas suspensas de lista, estabelecimento e produto mostram os objetos guardados no Repositorio</td></tr>
+  <tr><td><strong>Alterado</strong></td><td>Ao incluir, editar ou excluir itens, o Repositorio altera os objetos <code>ItemLista</code> (D4), ligados à lista pelo id</td></tr>
+  <tr><td><strong>Refletido</strong></td><td>Ao voltar ao Cadastrar lista, a coluna DETALHES chama <code>lista.getDetalhe()</code>, que calcula na hora "3 produtos — R$ 92,00" a partir dos itens. A lista também não pode mais ser excluída: "Não é possível excluir: a lista possui itens vinculados"</td></tr>
+</table>
+<p>A opção "Criar lista de compras" continua no menu, como exige a RN078. Nesse caso o usuário escolhe a lista na própria tela.</p>
+
+<h2>6. Herança</h2>
+<p>A classe pai <code>Cadastro</code> guarda o que as três telas de cadastro têm em comum: o <code>id</code>, o
+<code>nome</code> e a regra de nome repetido. As filhas chamam o construtor do pai com <code>super(id, nome)</code>
+e acrescentam só o que é delas.</p>
+<pre>public abstract class Cadastro {
+    private int id;
+    private String nome;
+
+    public boolean temMesmoNome(String outroNome) {
+        return nome.trim().equalsIgnoreCase(outroNome.trim());
+    }
+    public abstract String getDetalhe();
+    public abstract String getMensagemEmUso();
+    public abstract boolean estaVinculadoA(ItemLista item);
+}
+
+public class Estabelecimento extends Cadastro {
+    private List&lt;DayOfWeek&gt; diasPromocao;
+    public Estabelecimento(int id, String nome, List&lt;DayOfWeek&gt; dias) {
+        super(id, nome);                 // o pai guarda id e nome
+        this.diasPromocao = organizarDias(dias);
+    }
+}</pre>
+<p><strong>Benefício:</strong> a regra "o nome não pode se repetir, ignorando maiúsculas, minúsculas e espaços"
+(RN007, RN022 e RN037) foi escrita <strong>uma única vez</strong>, em <code>temMesmoNome()</code>, e as três classes a herdam.
+O método <code>recusarNomeRepetido()</code> do Repositorio recebe <code>List&lt;? extends Cadastro&gt;</code> e serve para os três tipos.</p>
+
+<h2>7. Polimorfismo</h2>
+<table>
+  <tr><th>Onde</th><th>Classes</th><th>O que varia</th></tr>
+  <tr><td>Coluna DETALHES / cartão do produto: <code>cadastro.getDetalhe()</code></td><td>ListaCompra, Estabelecimento, Produto</td><td>Lista: "3 produtos — R$ 92,00"; Estabelecimento: "Ter, Sex" ou "Sem dias de promoção"; Produto: "Pacote"</td></tr>
+  <tr><td>Exclusão: <code>ExclusaoCadastro.excluir(Cadastro)</code> → <code>repositorio.excluir(Cadastro)</code></td><td>As três</td><td>Se estiver em uso, cada classe devolve a própria frase do BDD em <code>getMensagemEmUso()</code> (H05, H09 e H13)</td></tr>
+  <tr><td>Verificar se está em uso: <code>cadastro.estaVinculadoA(item)</code></td><td>As três</td><td>A lista compara <code>idLista</code>, o estabelecimento compara <code>idEstabelecimento</code> e o produto compara <code>idProduto</code></td></tr>
+</table>
+<pre>// Um único método serve para lista, estabelecimento e produto
+public void excluir(Cadastro cadastro) {
+    if (estaEmUso(cadastro)) {
+        throw new ValidacaoException(cadastro.getMensagemEmUso());
+    }
+    ...
+}</pre>
+<p><strong>Benefício:</strong> as três telas usam o mesmo código de exclusão. Quem chama não precisa de
+<code>if</code> para saber o tipo do objeto: o Java chama a versão do método da classe real em tempo de execução.
+Um quarto tipo de cadastro só precisaria implementar os três métodos.</p>
+
+<h2>8. Fluxo da aplicação</h2>
+<ol>
+  <li>O <code>Main</code> chama o <code>App</code>, que carrega o JSON (ou cria o arquivo vazio) e abre o Menu.</li>
+  <li><strong>Cadastro:</strong> o usuário cadastra o estabelecimento "Mercado Central" (Ter, Sex), os produtos e a lista "Compras da semana".</li>
+  <li><strong>Consulta:</strong> as tabelas e os contadores mostram os registros; a lista aparece com "0 produtos — R$ 0,00".</li>
+  <li><strong>Movimentação:</strong> o botão Montar abre o Criar lista com a lista escolhida; o usuário inclui os itens e vê os totais (12 itens, R$ 92,00).</li>
+  <li><strong>Consulta de novo:</strong> de volta ao Cadastrar lista, a mesma linha mostra "3 produtos — R$ 92,00".</li>
+  <li><strong>Sair:</strong> confirma, grava o arquivo e fecha. Ao abrir de novo, os dados continuam lá.</li>
+</ol>
+<div class="nota"><strong>Por que a Consulta não é uma tela separada:</strong> o documento de requisitos do grupo (trabalho de
+Processo de Software) define que o menu tem exatamente cinco opções (RN002) e que a consulta é exibida
+"na própria tela de cadastro, sem exigir uma ação extra do usuário" (RN010). Por isso a Consulta exigida pelo trabalho
+de Java fica embutida nas telas de cadastro (tabelas e cartões) e na tabela de itens do Criar lista (RF015).</div>
+
+<h2>9. Gravação dos dados em JSON</h2>
+<p>A classe <code>Persistencia</code> usa a biblioteca <strong>Gson</strong> (dependência no <code>pom.xml</code>) para
+transformar os objetos em JSON e o JSON de volta em objetos.</p>
+<table>
+  <tr><th>Regra</th><th>Como foi feito</th></tr>
+  <tr><td>RN074 — gravar a cada operação</td><td>Todo método do Repositorio que altera dados termina chamando <code>gravar()</code></td></tr>
+  <tr><td>RN075 — carregar ao iniciar</td><td><code>App.start()</code> chama <code>Repositorio.ativarGravacao(...)</code> antes de abrir o menu</td></tr>
+  <tr><td>RN076 — criar o arquivo vazio</td><td>Se <code>dados/lista_compras.json</code> não existe, ele é criado com as quatro listas vazias, sem mensagem de erro</td></tr>
+  <tr><td>RN077 — arquivo corrompido</td><td>O sistema avisa o usuário e abre sem dados, e guarda uma cópia <code>lista_compras.json.corrompido</code> para não perder o conteúdo</td></tr>
+  <tr><td>RN071 — gravar ao sair</td><td><code>Encerramento.confirmarSaida()</code> grava o arquivo antes de fechar</td></tr>
+</table>
+<pre>{
+  "listas": [ { "id": 1, "nome": "Compras da semana" } ],
+  "estabelecimentos": [ { "diasPromocao": [ "TUESDAY", "FRIDAY" ], "id": 1, "nome": "Mercado Central" } ],
+  "produtos": [ { "unidade": "PACOTE", "id": 1, "nome": "Arroz branco 5kg" } ],
+  "itens": [ { "id": 1, "idLista": 1, "idEstabelecimento": 1, "idProduto": 1,
+               "unidade": "PACOTE", "quantidade": 2.0, "valorUnitario": 24.9 } ]
+}</pre>
+
+<h2>10. Testes</h2>
+<p>Foram feitos dois testes automáticos, que ficam em <code>src/test/java</code> e rodam pelo IntelliJ (botão direito no arquivo &gt; Run):</p>
+<table>
+  <tr><th>Teste</th><th>O que verifica</th><th>Resultado</th></tr>
+  <tr><td><code>TesteModel</code></td><td>Regras do Model sem abrir telas: validações, duplicidade, ordem dos dias, cálculos R$ 92,00 → R$ 103,00 → R$ 82,80</td><td class="ok">52 de 52 OK</td></tr>
+  <tr><td><code>TesteTelasBDD</code></td><td>Abre as telas de verdade e segue os cenários H01 a H18 com os dados e as mensagens do BDD, clicando nos botões (inclusive Editar, Excluir e Montar dentro das linhas)</td><td class="ok">91 de 91 OK</td></tr>
+</table>
+<table>
+  <tr><th>História</th><th>Cenários conferidos</th><th>Situação</th></tr>
+  <tr><td>H01 Menu</td><td>c1, c2, c4</td><td class="ok">OK (c3 não se aplica*)</td></tr>
+  <tr><td>H02 a H05 Listas</td><td>todos</td><td class="ok">OK</td></tr>
+  <tr><td>H06 a H09 Estabelecimentos</td><td>todos</td><td class="ok">OK</td></tr>
+  <tr><td>H10 a H13 Produtos</td><td>todos, incluindo o aviso ao trocar a unidade (H12 c2)</td><td class="ok">OK</td></tr>
+  <tr><td>H14 a H17 Itens</td><td>todos, incluindo R$ 49,80, 12 itens / R$ 92,00, R$ 103,00, R$ 9,20 e R$ 82,80</td><td class="ok">OK</td></tr>
+  <tr><td>H18 Encerrar</td><td>c1, c2, c3, mais o aviso de cadastro em andamento (RN072)</td><td class="ok">OK</td></tr>
+</table>
+<p>* H01 c3 / RN004 ("opção inválida"): em interface gráfica o menu só tem botões, então não existe como informar
+uma opção que não está no menu.</p>
+
+<h2>11. Como executar</h2>
+<ol>
+  <li>Abrir a pasta <code>Lista_Compras</code> no IntelliJ IDEA (projeto Maven; o IntelliJ baixa JavaFX 21 e Gson sozinho).</li>
+  <li>Executar a classe <code>org.example.Main</code>, ou rodar <code>mvn javafx:run</code>.</li>
+  <li>Na primeira execução é criada a pasta <code>dados</code> com o arquivo <code>lista_compras.json</code>.</li>
+</ol>
+<p>A classe <code>Main</code> não herda de <code>Application</code> de propósito: assim o JavaFX funciona mesmo estando
+no classpath, sem o erro "JavaFX runtime components are missing".</p>
+
+<h2 class="quebra">Apêndice — Roteiro da apresentação</h2>
+<table>
+  <tr><th>#</th><th>Item</th><th>O que mostrar</th><th>Quem</th></tr>
+  <tr><td>1</td><td>Cadastro</td><td>Cadastrar "Mercado Central" (Ter, Sex); "Arroz branco 5kg" (Pacote), "Leite integral" (Litro), "Sabonete" (Unidade); a lista "Compras da semana"</td><td>G. Miguel / G. Pereira</td></tr>
+  <tr><td>2</td><td>Consulta</td><td>Tabelas e contadores; a lista com "0 produtos — R$ 0,00"; dias na ordem da semana; imagem padrão</td><td>G. Pereira / G. Miguel</td></tr>
+  <tr><td>3</td><td>Movimentação</td><td>Clicar em <strong>Montar</strong>, escolher o Mercado Central e incluir arroz 2 × 24,90, leite 6 × 5,50 e sabonete 4 × 2,30</td><td>João Pedro</td></tr>
+  <tr><td>4</td><td>Validação</td><td>Quantidade 0 → "A quantidade deve ser maior que zero"; nome repetido → "Já existe uma lista com esse nome"</td><td>João Pedro</td></tr>
+  <tr><td>5</td><td>Atualização</td><td>Totais 12 itens e R$ 92,00; editar o leite para 8 → R$ 103,00</td><td>João Pedro</td></tr>
+  <tr><td>6</td><td>Consulta de novo</td><td>Voltar ao Cadastrar lista: "3 produtos — R$ 103,00"; tentar excluir e ver o bloqueio</td><td>G. Pereira</td></tr>
+  <tr><td>7</td><td>Passagem de dados</td><td>No código: <code>Navegador.abrir</code> devolvendo o controller e <code>setListaSelecionada(lista)</code>; o Repositorio único</td><td>Aguinaldo</td></tr>
+  <tr><td>8</td><td>Objetos e JSON</td><td>Sair, abrir de novo e ver os dados; abrir o <code>lista_compras.json</code></td><td>Aguinaldo</td></tr>
+  <tr><td>9</td><td>Herança e polimorfismo</td><td><code>Cadastro</code>, <code>getDetalhe()</code>, <code>getMensagemEmUso()</code> e <code>ExclusaoCadastro</code></td><td>Aguinaldo</td></tr>
+  <tr><td>10</td><td>Scene Builder</td><td>Abrir um FXML (por exemplo <code>CriarLista.fxml</code>) e mostrar os <code>fx:id</code> ligados ao controller</td><td>Todos</td></tr>
+</table>
+
+</body>
+</html>

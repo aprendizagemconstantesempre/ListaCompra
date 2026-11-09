@@ -42,17 +42,22 @@
             escolher mais de um dia. Cada botao fica pressionado quando selecionado.
         -->
         <HBox spacing="8">
-            <ToggleButton fx:id="btnDomingo" text="Dom" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnSegunda" text="Seg" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnTerca" text="Ter" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnQuarta" text="Qua" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnQuinta" text="Qui" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnSexta" text="Sex" styleClass="botao-secundario" prefWidth="58" />
-            <ToggleButton fx:id="btnSabado" text="Sab" styleClass="botao-secundario" prefWidth="58" />
+            <ToggleButton fx:id="btnDomingo" text="Dom" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnSegunda" text="Seg" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnTerca" text="Ter" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnQuarta" text="Qua" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnQuinta" text="Qui" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnSexta" text="Sex" styleClass="toggle-button, botao-dia" prefWidth="58" />
+            <ToggleButton fx:id="btnSabado" text="Sab" styleClass="toggle-button, botao-dia" prefWidth="58" />
         </HBox>
 
-        <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarEstabelecimento"
-                styleClass="botao-principal" prefWidth="130" />
+        <HBox spacing="10">
+            <Button fx:id="btnAdicionar" text="+ Adicionar" onAction="#adicionarEstabelecimento"
+                    styleClass="botao-principal" prefWidth="130" />
+            <!-- So aparece enquanto um estabelecimento esta sendo editado -->
+            <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelarEdicao"
+                    styleClass="botao-secundario" prefWidth="110" visible="false" managed="false" />
+        </HBox>
     </VBox>
 
     <Region prefHeight="14" />
@@ -60,7 +65,7 @@
     <HBox alignment="CENTER_LEFT">
         <Label text="Estabelecimentos cadastrados" styleClass="titulo-secao" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="rotuloContador" text="0 estabelecimento(s)" styleClass="contador" />
+        <Label fx:id="rotuloContador" text="0 estabelecimentos cadastrados" styleClass="contador" />
     </HBox>
 
     <!-- Listagem com o nome e os dias de promocao de cada estabelecimento (RF007) -->

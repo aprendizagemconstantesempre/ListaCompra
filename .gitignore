@@ -37,3 +37,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Dados gravados pelo sistema (NF001) ###
+dados/

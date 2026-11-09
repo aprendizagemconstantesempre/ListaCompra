@@ -53,7 +53,7 @@
     <!-- Segundo cartao: dados do item que estamos incluindo na lista -->
     <HBox styleClass="cartao" spacing="16" alignment="BOTTOM_LEFT">
         <VBox spacing="6" HBox.hgrow="ALWAYS">
-            <Label text="Produto" styleClass="rotulo-campo" />
+            <Label text="Produto *" styleClass="rotulo-campo" />
             <ComboBox fx:id="comboProduto" promptText="Selecione o produto" maxWidth="Infinity" />
         </VBox>
         <VBox spacing="6">
@@ -66,6 +66,9 @@
         </VBox>
         <Button fx:id="btnAdicionarItem" text="+ Adicionar item" onAction="#adicionarItem"
                 styleClass="botao-principal" prefWidth="150" />
+        <!-- So aparece enquanto um item esta sendo editado -->
+        <Button fx:id="btnCancelarItem" text="Cancelar" onAction="#cancelarEdicao"
+                styleClass="botao-secundario" prefWidth="100" visible="false" managed="false" />
     </HBox>
 
     <Region prefHeight="14" />
@@ -73,7 +76,7 @@
     <HBox alignment="CENTER_LEFT">
         <Label fx:id="rotuloItens" text="Itens da lista" styleClass="titulo-secao" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="rotuloContador" text="0 item(ns)" styleClass="contador" />
+        <Label fx:id="rotuloContador" text="0 itens" styleClass="contador" />
     </HBox>
 
     <!-- Tabela com os itens ja incluidos na lista escolhida (RF015) -->

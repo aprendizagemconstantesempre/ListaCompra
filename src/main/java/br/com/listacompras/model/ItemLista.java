@@ -42,6 +42,10 @@ public class ItemLista {
         this.valorUnitario = valorUnitario;
     }
 
+    /** Construtor vazio usado pelo Gson ao ler o arquivo JSON. */
+    private ItemLista() {
+    }
+
     public int getId() {
         return id;
     }

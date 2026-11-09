@@ -41,6 +41,22 @@ documento de requisitos (RN010).
 
 ---
 
+## 2a. Atualização de 09/11: Fases 2, 3 e 4 implementadas (sem commit)
+
+| Item | Situação |
+|---|---|
+| Cadastro de Lista, Estabelecimento e Produto: incluir, consultar, editar (botão vira "Salvar" + "Cancelar"), excluir com confirmação, bloqueio em uso, contadores | ✅ |
+| Exclusão polimórfica única: `controller/ExclusaoCadastro.excluir(Cadastro, ...)` | ✅ |
+| Criar Lista: combos com objetos, "Sem estabelecimento" (RN051), soma de quantidade (RN055), filtro (RN058), totais, editar e excluir item | ✅ |
+| Passagem de dados: botão **Montar** na linha da lista → `Navegador.abrir(...)` devolve o controller → `setListaSelecionada(lista)` | ✅ |
+| `model/Persistencia` com Gson: `dados/lista_compras.json`, grava a cada operação, cria vazio, avisa se corrompido (guarda cópia `.corrompido`) | ✅ |
+| Sair com confirmação (botão do menu e "X" da janela) | ✅ |
+| Foto do produto pelo `FileChooser` (NF006) | ✅ |
+| Testes: `TesteModel` 52/52 e roteiro automático das telas 52/52 | ✅ |
+| Fase 5: mensagens conferidas com o PDF do BDD; ajustes de RN012 (relação vazia), contadores "N listas cadastradas", aviso da H12 c2, RN071/RN072 ao sair e foto por link (RN088). `TesteTelasBDD` segue H01–H18: **91/91 OK** | ✅ |
+| Fase 6: `docs/Documentacao_Java.pdf` (fonte em `Documentacao_Java.html`), com o roteiro da apresentação no apêndice | ✅ |
+| **Falta:** ensaio da apresentação, commit e entrega (empacotar sem `target/` e sem `dados/`) | ⏳ |
+
 ## 2. Onde estamos (03/11)
 
 | Item | Situação |

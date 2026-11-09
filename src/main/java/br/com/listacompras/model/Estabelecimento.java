@@ -25,6 +25,10 @@ public class Estabelecimento extends Cadastro {
         this.diasPromocao = organizarDias(diasPromocao);
     }
 
+    /** Construtor vazio usado pelo Gson ao ler o arquivo JSON. */
+    private Estabelecimento() {
+    }
+
     /**
      * Devolvemos uma cópia da lista. Assim, quem chamar este método não
      * consegue alterar os dias sem passar pelo setDiasPromocao (encapsulamento).
