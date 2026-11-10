@@ -1,8 +1,6 @@
 package br.com.listacompras;
 
-import br.com.listacompras.model.Persistencia;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.ValidacaoException;
+import br.com.listacompras.data.Repositorio;
 import br.com.listacompras.util.Encerramento;
 import br.com.listacompras.util.Mensagem;
 import javafx.application.Application;
@@ -22,9 +20,8 @@ public class App extends Application {
         // Antes de mostrar qualquer tela, carregamos os dados do arquivo JSON (RN075).
         // Se o arquivo nao existir, ele e criado vazio (RN076).
         try {
-            Repositorio.getInstancia().ativarGravacao(new Persistencia(Persistencia.ARQUIVO_PADRAO));
-        } catch (ValidacaoException erro) {
-            // Arquivo corrompido (RN077): avisamos e o sistema abre sem dados
+            new Repositorio().inicializar();
+        } catch (Exception erro) {
             Mensagem.avisar(erro.getMessage());
         }
 

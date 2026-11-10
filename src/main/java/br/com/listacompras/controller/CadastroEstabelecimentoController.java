@@ -1,8 +1,7 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.data.Repositorio;
 import br.com.listacompras.model.Estabelecimento;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.ValidacaoException;
 import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Formatador;
 import br.com.listacompras.util.Mensagem;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -53,7 +53,7 @@ public class CadastroEstabelecimentoController implements Initializable {
     @FXML private TableColumn<Estabelecimento, Void> colunaAcoes;
     @FXML private Button btnVoltar;
 
-    private final Repositorio repositorio = Repositorio.getInstancia();
+    private final Repositorio repositorio = new Repositorio();
 
     // Liga cada botao da tela ao dia da semana do Java. A ordem e a da tela (Dom a Sab).
     private final Map<DayOfWeek, ToggleButton> botoesDosDias = new LinkedHashMap<>();
@@ -72,36 +72,37 @@ public class CadastroEstabelecimentoController implements Initializable {
         botoesDosDias.put(DayOfWeek.SATURDAY, btnSabado);
 
         colunaNome.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getNome()));
-
-        // Polimorfismo: aqui getDetalhe() devolve os dias, como "Ter, Sex"
         colunaDias.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getDetalhe()));
 
-        // Editar e excluir ficam na propria linha do registro (RN080)
         BotoesLinha.configurarColuna(colunaAcoes, this::editarEstabelecimento, this::excluirEstabelecimento);
-
         tabelaEstabelecimentos.setPlaceholder(new Label("Ainda não há estabelecimentos cadastrados"));
 
+        campoNomeEstabelecimento.setOnAction(evento -> adicionarEstabelecimento(null));
         atualizarTabela();
     }
 
     /** Cadastra (RF006) ou salva a alteração (RF008) do estabelecimento. */
     @FXML
     private void adicionarEstabelecimento(ActionEvent evento) {
-        try {
-            if (estabelecimentoEmEdicao == null) {
-                repositorio.cadastrarEstabelecimento(campoNomeEstabelecimento.getText(), diasSelecionados());
-                Mensagem.informar("Estabelecimento cadastrado com sucesso");
-            } else {
-                repositorio.alterarEstabelecimento(estabelecimentoEmEdicao,
-                        campoNomeEstabelecimento.getText(), diasSelecionados());
-                Mensagem.informar("Estabelecimento alterado com sucesso");
-            }
-            limparFormulario();
-            atualizarTabela();
-        } catch (ValidacaoException erro) {
-            Mensagem.avisar(erro.getMessage());
+        String nome = campoNomeEstabelecimento.getText();
+        if (nome == null || nome.isBlank()) {
+            Mensagem.avisar("Informe o nome do estabelecimento");
             campoNomeEstabelecimento.requestFocus();
+            return;
         }
+        nome = nome.trim();
+
+        boolean eraNovo = (estabelecimentoEmEdicao == null);
+        if (eraNovo) {
+            repositorio.salvarEstabelecimento(new Estabelecimento(nome, diasSelecionados()));
+        } else {
+            estabelecimentoEmEdicao.setNome(nome);
+            estabelecimentoEmEdicao.setDiasPromocao(diasSelecionados());
+            repositorio.salvarEstabelecimento(estabelecimentoEmEdicao);
+        }
+        limparFormulario();
+        atualizarTabela();
+        Mensagem.informar(eraNovo ? "Estabelecimento cadastrado com sucesso" : "Estabelecimento alterado com sucesso");
     }
 
     /** Preenche o formulário com os dados da linha e troca o botão para "Salvar" (RF008). */
@@ -168,9 +169,9 @@ public class CadastroEstabelecimentoController implements Initializable {
     /** Recarrega a tabela e o contador de registros (RN028). */
     private void atualizarTabela() {
         tabelaEstabelecimentos.setItems(
-                FXCollections.observableArrayList(repositorio.getEstabelecimentos()));
+                FXCollections.observableArrayList(repositorio.listarEstabelecimentos()));
         tabelaEstabelecimentos.refresh();
-        rotuloContador.setText(Formatador.contador(repositorio.getEstabelecimentos().size(),
+        rotuloContador.setText(Formatador.contador(repositorio.listarEstabelecimentos().size(),
                 "estabelecimento cadastrado", "estabelecimentos cadastrados"));
     }
 }

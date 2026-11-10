@@ -1,45 +1,64 @@
 package br.com.listacompras.controller;
 
-import br.com.listacompras.model.Cadastro;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.ValidacaoException;
+import br.com.listacompras.data.Repositorio;
+import br.com.listacompras.model.Entidade;
+import br.com.listacompras.model.Estabelecimento;
+import br.com.listacompras.model.ListaCompra;
+import br.com.listacompras.model.Produto;
 import br.com.listacompras.util.Mensagem;
 
-/**
- * Exclusão usada pelas três telas de cadastro: lista, estabelecimento e produto.
- *
- * POLIMORFISMO: o método recebe um Cadastro, sem saber se é uma ListaCompra,
- * um Estabelecimento ou um Produto. Se o cadastro estiver em uso, o
- * Repositorio lança o erro com cadastro.getMensagemEmUso(), e cada classe
- * devolve a própria frase (RN019, RN034 e RN048). Assim as três telas usam
- * o mesmo código.
- */
+import java.util.Objects;
+
 final class ExclusaoCadastro {
 
     private ExclusaoCadastro() {
     }
 
-    /**
-     * Pede confirmação (RN018, RN033 e RN047) e exclui o cadastro.
-     *
-     * @param tipo como o cadastro é chamado na pergunta, por exemplo "a lista"
-     * @return true se o cadastro foi excluído; false se o usuário desistiu ou se ele está em uso
-     */
-    static boolean excluir(Cadastro cadastro, String tipo) {
-        if (cadastro == null) {
+    static boolean excluir(Entidade entidade, String tipo) {
+        if (entidade == null) {
             return false;
         }
 
-        if (!Mensagem.confirmar("Deseja realmente excluir " + tipo + " \"" + cadastro.getNome() + "\"?")) {
+        String nomeItem = "";
+        if (entidade instanceof ListaCompra l) {
+            nomeItem = l.getNome();
+        } else if (entidade instanceof Estabelecimento e) {
+            nomeItem = e.getNome();
+        } else if (entidade instanceof Produto p) {
+            nomeItem = p.getDescricao();
+        }
+
+        if (!Mensagem.confirmar("Deseja realmente excluir " + tipo + " \"" + nomeItem + "\"?")) {
             return false;
         }
 
-        try {
-            Repositorio.getInstancia().excluir(cadastro);
-            return true;
-        } catch (ValidacaoException erro) {
-            Mensagem.avisar(erro.getMessage());
+        Repositorio repositorio = new Repositorio();
+        boolean emUso = false;
+        String mensagemEmUso = "";
+
+        if (entidade instanceof ListaCompra l) {
+            emUso = repositorio.listarItens().stream().anyMatch(i -> Objects.equals(i.getIdLista(), l.getId()));
+            mensagemEmUso = "Não é possível excluir: a lista possui itens vinculados";
+        } else if (entidade instanceof Estabelecimento e) {
+            emUso = repositorio.listarItens().stream().anyMatch(i -> Objects.equals(i.getIdEstabelecimento(), e.getId()));
+            mensagemEmUso = "Não é possível excluir: o estabelecimento possui itens vinculados";
+        } else if (entidade instanceof Produto p) {
+            emUso = repositorio.listarItens().stream().anyMatch(i -> Objects.equals(i.getIdProduto(), p.getId()));
+            mensagemEmUso = "Não é possível excluir: o produto está incluído em uma lista";
+        }
+
+        if (emUso) {
+            Mensagem.avisar(mensagemEmUso);
             return false;
         }
+
+        if (entidade instanceof ListaCompra l) {
+            repositorio.deletarListaDeCompra(l.getId());
+        } else if (entidade instanceof Estabelecimento e) {
+            repositorio.deletarEstabelecimento(e.getId());
+        } else if (entidade instanceof Produto p) {
+            repositorio.deletarProduto(p.getId());
+        }
+        return true;
     }
 }
