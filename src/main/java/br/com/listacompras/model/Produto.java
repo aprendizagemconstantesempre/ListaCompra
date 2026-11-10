@@ -1,9 +1,12 @@
 package br.com.listacompras.model;
 
 import br.com.listacompras.model.Enums.UnidadeMedida;
+import com.google.gson.annotations.SerializedName;
 
 public class Produto extends Entidade {
 
+    // "nome" era o nome do campo antes da refatoracao: assim o JSON antigo continua sendo lido
+    @SerializedName(value = "descricao", alternate = {"nome"})
     private String descricao;
     private UnidadeMedida unidade;
     private String caminhoFoto;
