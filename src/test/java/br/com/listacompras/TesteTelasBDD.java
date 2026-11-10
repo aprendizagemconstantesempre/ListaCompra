@@ -3,11 +3,11 @@ package br.com.listacompras;
 import br.com.listacompras.model.Estabelecimento;
 import br.com.listacompras.model.ItemLista;
 import br.com.listacompras.model.ListaCompra;
-import br.com.listacompras.model.Persistencia;
 import br.com.listacompras.model.Produto;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.UnidadeMedida;
+import br.com.listacompras.data.Repositorio;
+import br.com.listacompras.model.Enums.UnidadeMedida;
 import br.com.listacompras.util.Encerramento;
+import br.com.listacompras.util.Formatador;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -88,8 +88,8 @@ public class TesteTelasBDD {
     }
 
     private static void rodar(Path arquivo) throws Exception {
-        Repositorio repo = Repositorio.getInstancia();
-        repo.ativarGravacao(new Persistencia(arquivo));
+        Repositorio repo = new Repositorio();
+        repo.inicializar();
         verificar("RN076: arquivo criado vazio na primeira abertura", true, Files.exists(arquivo));
 
         palco = new Stage();
@@ -136,7 +136,7 @@ public class TesteTelasBDD {
         digitar("campoNomeLista", "compras da semana");
         clicar("btnAdicionar");
         verificar("c3: nome repetido", "Já existe uma lista com esse nome", ultimaMensagem());
-        verificar("c3: lista não é gravada", 1, repo.getListas().size());
+        verificar("c3: lista não é gravada", 1, repo.listarListasDeCompra().size());
 
         titulo("H03 — Consultar listas");
         digitar("campoNomeLista", "Lista do mes");
@@ -288,7 +288,7 @@ public class TesteTelasBDD {
         TableView<ItemLista> tabelaItens = q("tabelaItens");
         comboEst.setValue(estabelecimento("Mercado Central"));
         incluirItem("Arroz branco 5kg", "2", "24,90");
-        verificar("c1: item aparece na relação", "Arroz branco 5kg", tabelaItens.getItems().get(0).getDescricaoProduto());
+        verificar("c1: item aparece na relação", "Arroz branco 5kg", descricaoDoItem(tabelaItens.getItems().get(0)));
 
         comboEst.setValue(comboEst.getItems().get(0)); // "Sem estabelecimento"
         incluirItem("Sabonete", "4", "");
@@ -383,12 +383,12 @@ public class TesteTelasBDD {
         clicarNaLinha(tabelaListas, lista("Compras da semana"), "Excluir");
         verificar("H05 c3", "Não é possível excluir: a lista possui itens vinculados", ultimaMensagem());
         verificar("Consulta: a mesma lista mostra os itens da Movimentação", "3 produtos — R$ 92,00",
-                lista("Compras da semana").getDetalhe());
+                detalheDaLista(lista("Compras da semana")));
         clicarNaLinha(tabelaListas, lista("Compras da semana"), "Editar");
         digitar("campoNomeLista", "Compras do mercado");
         clicar("btnAdicionar");
         verificar("H04 c4: itens continuam na lista renomeada", 3,
-                repo.itensDaLista(lista("Compras do mercado")).size());
+                repo.listarItensPorLista(lista("Compras do mercado").getId()).size());
 
         // ================================================================ H18
         titulo("H18 — Encerrar o sistema");
@@ -411,22 +411,22 @@ public class TesteTelasBDD {
         verificar("c1: confirmar permite encerrar", true, Encerramento.confirmarSaida(palco.getScene()));
         verificar("c1 / RN071: dados gravados no arquivo ao sair", true, Files.exists(arquivo));
 
-        int listas = repo.getListas().size();
-        int estabelecimentos = repo.getEstabelecimentos().size();
-        int produtos = repo.getProdutos().size();
-        repo.ativarGravacao(new Persistencia(arquivo)); // simula abrir o sistema de novo
+        int listas = repo.listarListasDeCompra().size();
+        int estabelecimentos = repo.listarEstabelecimentos().size();
+        int produtos = repo.listarProdutos().size();
+        repo.inicializar(); // simula abrir o sistema de novo
         verificar("c3: três listas continuam", 3, listas);
-        verificar("c3: listas recarregadas do JSON", listas, repo.getListas().size());
-        verificar("c3: estabelecimentos recarregados", estabelecimentos, repo.getEstabelecimentos().size());
-        verificar("c3: quatro produtos recarregados", 4, repo.getProdutos().size());
-        verificar("c3: produtos", produtos, repo.getProdutos().size());
+        verificar("c3: listas recarregadas do JSON", listas, repo.listarListasDeCompra().size());
+        verificar("c3: estabelecimentos recarregados", estabelecimentos, repo.listarEstabelecimentos().size());
+        verificar("c3: quatro produtos recarregados", 4, repo.listarProdutos().size());
+        verificar("c3: produtos", produtos, repo.listarProdutos().size());
         verificar("c3: totais iguais após recarregar", "3 produtos — R$ 92,00",
-                lista("Compras do mercado").getDetalhe());
+                detalheDaLista(lista("Compras do mercado")));
 
         titulo("RN077 — Arquivo corrompido");
         Files.writeString(arquivo, "{ isto não é JSON");
         try {
-            repo.ativarGravacao(new Persistencia(arquivo));
+            repo.inicializar();
             verificar("avisa em vez de encerrar", "aviso", "nenhum aviso");
         } catch (RuntimeException erro) {
             verificar("avisa em vez de encerrar", true, erro.getMessage().contains("corrompido"));
@@ -504,7 +504,7 @@ public class TesteTelasBDD {
         tabela.applyCss();
         tabela.layout();
         for (Node no : tabela.lookupAll(".table-row-cell")) {
-            if (no instanceof TableRow<?> linha && linha.getItem() == registro) {
+            if (no instanceof TableRow<?> linha && java.util.Objects.equals(linha.getItem(), registro)) {
                 for (Node botao : linha.lookupAll(".button")) {
                     if (botao instanceof Button b && textoDoBotao.equals(b.getText())) {
                         b.fire();
@@ -577,7 +577,7 @@ public class TesteTelasBDD {
 
     private static ItemLista item(TableView<ItemLista> tabela, String produto) {
         for (ItemLista item : tabela.getItems()) {
-            if (item.getDescricaoProduto().equals(produto)) {
+            if (descricaoDoItem(item).equals(produto)) {
                 return item;
             }
         }
@@ -585,8 +585,8 @@ public class TesteTelasBDD {
     }
 
     private static ItemLista itemDoProduto(Repositorio repo, String produto) {
-        for (ItemLista item : repo.getItens()) {
-            if (item.getDescricaoProduto().equals(produto)) {
+        for (ItemLista item : repo.listarItens()) {
+            if (descricaoDoItem(item).equals(produto)) {
                 return item;
             }
         }
@@ -594,12 +594,27 @@ public class TesteTelasBDD {
     }
 
     /** Texto de uma célula da tabela de itens: 4 = coluna SUBTOTAL. */
+    private static String descricaoDoItem(ItemLista item) {
+        if (item == null || item.getIdProduto() == null) return "";
+        Produto p = new Repositorio().buscarProdutoPorId(item.getIdProduto());
+        return p != null ? p.getDescricao() : "";
+    }
+
+    private static String detalheDaLista(ListaCompra lista) {
+        if (lista == null) return "";
+        Repositorio repo = new Repositorio();
+        List<ItemLista> itens = repo.listarItensPorLista(lista.getId());
+        String produtos = (itens.size() == 1) ? "1 produto" : itens.size() + " produtos";
+        double total = itens.stream().mapToDouble(ItemLista::getSubtotal).sum();
+        return produtos + " — " + Formatador.moeda(total);
+    }
+
     private static String celula(TableView<ItemLista> tabela, String produto, int coluna) {
         return (String) tabela.getColumns().get(coluna).getCellData(item(tabela, produto));
     }
 
     private static ListaCompra lista(String nome) {
-        for (ListaCompra lista : Repositorio.getInstancia().getListas()) {
+        for (ListaCompra lista : new Repositorio().listarListasDeCompra()) {
             if (lista.getNome().equals(nome)) {
                 return lista;
             }
@@ -608,7 +623,7 @@ public class TesteTelasBDD {
     }
 
     private static Estabelecimento estabelecimento(String nome) {
-        for (Estabelecimento e : Repositorio.getInstancia().getEstabelecimentos()) {
+        for (Estabelecimento e : new Repositorio().listarEstabelecimentos()) {
             if (e.getNome().equals(nome)) {
                 return e;
             }
@@ -617,7 +632,7 @@ public class TesteTelasBDD {
     }
 
     private static Produto produto(String descricao) {
-        for (Produto p : Repositorio.getInstancia().getProdutos()) {
+        for (Produto p : new Repositorio().listarProdutos()) {
             if (p.getDescricao().equals(descricao)) {
                 return p;
             }

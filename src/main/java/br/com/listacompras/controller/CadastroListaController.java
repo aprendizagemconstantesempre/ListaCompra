@@ -1,8 +1,8 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.data.Repositorio;
+import br.com.listacompras.model.ItemLista;
 import br.com.listacompras.model.ListaCompra;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.ValidacaoException;
 import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Formatador;
 import br.com.listacompras.util.Mensagem;
@@ -19,12 +19,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
-/**
- * Controller da tela de cadastro de listas de compras (RF002 a RF005).
- * A consulta (RF003) fica na tabela desta mesma tela (RN010).
- */
 public class CadastroListaController implements Initializable {
 
     @FXML private TextField campoNomeLista;
@@ -37,55 +35,50 @@ public class CadastroListaController implements Initializable {
     @FXML private TableColumn<ListaCompra, Void> colunaAcoes;
     @FXML private Button btnVoltar;
 
-    private final Repositorio repositorio = Repositorio.getInstancia();
-
-    // Lista que está sendo editada. Fica nula quando o formulário está cadastrando uma nova.
+    private final Repositorio repositorio = new Repositorio();
     private ListaCompra listaEmEdicao;
 
-    /**
-     * O JavaFX chama este metodo logo depois de montar a tela.
-     * E aqui que preparamos a tabela e carregamos os dados salvos.
-     */
     @Override
     public void initialize(URL url, ResourceBundle recursos) {
         colunaNomeLista.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getNome()));
-
-        // Polimorfismo: cada tipo de cadastro responde getDetalhe() do seu jeito
-        colunaDetalhes.setCellValueFactory(linha -> new SimpleStringProperty(linha.getValue().getDetalhe()));
-
-        // Montar, editar e excluir ficam na propria linha do registro (RN080)
+        colunaDetalhes.setCellValueFactory(linha -> new SimpleStringProperty(formatarDetalhe(linha.getValue())));
         BotoesLinha.configurarColuna(colunaAcoes, this::montarLista, this::editarLista, this::excluirLista);
 
-        // Enter no campo tem o mesmo efeito de clicar no botao
         campoNomeLista.setOnAction(evento -> adicionarLista(null));
-
-        // Relação vazia mostra um aviso no lugar das linhas (RN012)
         tabelaListas.setPlaceholder(new Label("Ainda não há listas cadastradas"));
-
         atualizarTabela();
     }
 
-    /** Cadastra uma lista nova (RF002) ou salva a alteração da lista em edição (RF004). */
-    @FXML
-    private void adicionarLista(ActionEvent evento) {
-        try {
-            if (listaEmEdicao == null) {
-                repositorio.cadastrarLista(campoNomeLista.getText());
-                Mensagem.informar("Lista cadastrada com sucesso");
-            } else {
-                repositorio.alterarLista(listaEmEdicao, campoNomeLista.getText());
-                Mensagem.informar("Lista alterada com sucesso");
-            }
-            limparFormulario();
-            atualizarTabela();
-        } catch (ValidacaoException erro) {
-            // A mensagem já vem pronta do Repositorio, igual à do BDD
-            Mensagem.avisar(erro.getMessage());
-            campoNomeLista.requestFocus();
-        }
+    private String formatarDetalhe(ListaCompra lista) {
+        if (lista == null) return "";
+        List<ItemLista> itens = repositorio.listarItensPorLista(lista.getId());
+        String produtos = (itens.size() == 1) ? "1 produto" : itens.size() + " produtos";
+        double total = itens.stream().mapToDouble(ItemLista::getSubtotal).sum();
+        return produtos + " — " + Formatador.moeda(total);
     }
 
-    /** Coloca o nome da lista no campo e troca o botão para "Salvar" (RF004). */
+    @FXML
+    private void adicionarLista(ActionEvent evento) {
+        String nome = campoNomeLista.getText();
+        if (nome == null || nome.isBlank()) {
+            Mensagem.avisar("Informe o nome da lista");
+            campoNomeLista.requestFocus();
+            return;
+        }
+        nome = nome.trim();
+
+        boolean eraNovo = (listaEmEdicao == null);
+        if (eraNovo) {
+            repositorio.salvarListaDeCompra(new ListaCompra(nome));
+        } else {
+            listaEmEdicao.setNome(nome);
+            repositorio.salvarListaDeCompra(listaEmEdicao);
+        }
+        limparFormulario();
+        atualizarTabela();
+        Mensagem.informar(eraNovo ? "Lista cadastrada com sucesso" : "Lista alterada com sucesso");
+    }
+
     private void editarLista(ListaCompra lista) {
         listaEmEdicao = lista;
         campoNomeLista.setText(lista.getNome());
@@ -94,7 +87,6 @@ public class CadastroListaController implements Initializable {
         campoNomeLista.requestFocus();
     }
 
-    /** Confirma e exclui a lista, se ela não tiver itens (RF005, RN018, RN019). */
     private void excluirLista(ListaCompra lista) {
         if (ExclusaoCadastro.excluir(lista, "a lista")) {
             if (lista == listaEmEdicao) {
@@ -104,10 +96,6 @@ public class CadastroListaController implements Initializable {
         }
     }
 
-    /**
-     * PASSAGEM DE DADOS: abre a tela Criar Lista e entrega a ela o objeto
-     * ListaCompra desta linha, que já aparece selecionado na tela nova.
-     */
     private void montarLista(ListaCompra lista) {
         CriarListaController criarLista = Navegador.abrir(btnVoltar, "/view/CriarLista.fxml");
         if (criarLista != null) {
@@ -122,7 +110,6 @@ public class CadastroListaController implements Initializable {
 
     @FXML
     private void voltarAoMenu(ActionEvent evento) {
-        // Voltamos para a tela principal do sistema
         Navegador.abrir(btnVoltar, "/view/MenuPrincipal.fxml");
     }
 
@@ -138,11 +125,10 @@ public class CadastroListaController implements Initializable {
         btnCancelar.setManaged(mostrar);
     }
 
-    /** Recarrega a tabela e o contador de registros (RN011). */
     private void atualizarTabela() {
-        tabelaListas.setItems(FXCollections.observableArrayList(repositorio.getListas()));
+        tabelaListas.setItems(FXCollections.observableArrayList(repositorio.listarListasDeCompra()));
         tabelaListas.refresh();
-        rotuloContador.setText(Formatador.contador(repositorio.getListas().size(),
+        rotuloContador.setText(Formatador.contador(repositorio.listarListasDeCompra().size(),
                 "lista cadastrada", "listas cadastradas"));
     }
 }

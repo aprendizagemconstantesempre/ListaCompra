@@ -1,9 +1,8 @@
 package br.com.listacompras.controller;
 
+import br.com.listacompras.data.Repositorio;
 import br.com.listacompras.model.Produto;
-import br.com.listacompras.model.Repositorio;
-import br.com.listacompras.model.UnidadeMedida;
-import br.com.listacompras.model.ValidacaoException;
+import br.com.listacompras.model.Enums.UnidadeMedida;
 import br.com.listacompras.util.BotoesLinha;
 import br.com.listacompras.util.Formatador;
 import br.com.listacompras.util.Mensagem;
@@ -26,6 +25,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -47,7 +47,7 @@ public class CadastroProdutoController implements Initializable {
     @FXML private FlowPane painelProdutos;
     @FXML private Button btnVoltar;
 
-    private final Repositorio repositorio = Repositorio.getInstancia();
+    private final Repositorio repositorio = new Repositorio();
 
     // Produto que esta sendo editado (nulo quando estamos cadastrando um novo)
     private Produto produtoEmEdicao;
@@ -61,6 +61,7 @@ public class CadastroProdutoController implements Initializable {
         comboUnidade.setItems(FXCollections.observableArrayList(UnidadeMedida.values()));
         comboUnidade.setValue(UnidadeMedida.UNIDADE);
 
+        campoDescricao.setOnAction(evento -> adicionarProduto(null));
         atualizarCartoes();
     }
 
@@ -140,27 +141,43 @@ public class CadastroProdutoController implements Initializable {
     /** Cadastra (RF010) ou salva a alteração (RF012) do produto. */
     @FXML
     private void adicionarProduto(ActionEvent evento) {
-        try {
-            if (produtoEmEdicao == null) {
-                repositorio.cadastrarProduto(campoDescricao.getText(), comboUnidade.getValue(),
-                        caminhoFotoEscolhida);
-                Mensagem.informar("Produto cadastrado com sucesso");
-            } else {
-                boolean mudouUnidadeEmUso = repositorio.alterarProduto(produtoEmEdicao,
-                        campoDescricao.getText(), comboUnidade.getValue(), caminhoFotoEscolhida);
-                if (mudouUnidadeEmUso) {
-                    // RN046: os itens já incluídos guardaram a unidade antiga (RN056)
-                    Mensagem.avisar("Atenção: o produto já está em listas montadas. "
-                            + "As quantidades já lançadas nos itens permanecem as mesmas");
-                } else {
-                    Mensagem.informar("Produto alterado com sucesso");
-                }
-            }
-            limparFormulario();
-            atualizarCartoes();
-        } catch (ValidacaoException erro) {
-            Mensagem.avisar(erro.getMessage());
+        String descricao = campoDescricao.getText();
+        if (descricao == null || descricao.isBlank()) {
+            Mensagem.avisar("Informe a descrição do produto");
             campoDescricao.requestFocus();
+            return;
+        }
+        descricao = descricao.trim();
+
+        if (comboUnidade.getValue() == null) {
+            Mensagem.avisar("Selecione a unidade de medida");
+            comboUnidade.requestFocus();
+            return;
+        }
+
+        boolean eraNovo = (produtoEmEdicao == null);
+        boolean mudouUnidadeEmUso = false;
+        if (eraNovo) {
+            repositorio.salvarProduto(new Produto(descricao, comboUnidade.getValue(), caminhoFotoEscolhida));
+        } else {
+            boolean estaEmUso = repositorio.listarItens().stream()
+                    .anyMatch(i -> Objects.equals(i.getIdProduto(), produtoEmEdicao.getId()));
+            mudouUnidadeEmUso = produtoEmEdicao.getUnidade() != comboUnidade.getValue() && estaEmUso;
+            produtoEmEdicao.setDescricao(descricao);
+            produtoEmEdicao.setUnidade(comboUnidade.getValue());
+            produtoEmEdicao.setCaminhoFoto(caminhoFotoEscolhida);
+            repositorio.salvarProduto(produtoEmEdicao);
+        }
+        limparFormulario();
+        atualizarCartoes();
+
+        if (eraNovo) {
+            Mensagem.informar("Produto cadastrado com sucesso");
+        } else if (mudouUnidadeEmUso) {
+            Mensagem.avisar("Atenção: o produto já está em listas montadas. "
+                    + "As quantidades já lançadas nos itens permanecem as mesmas");
+        } else {
+            Mensagem.informar("Produto alterado com sucesso");
         }
     }
 
@@ -216,16 +233,16 @@ public class CadastroProdutoController implements Initializable {
     private void atualizarCartoes() {
         // Tiramos tudo, inclusive o cartao de exemplo que existe no FXML so para o Scene Builder
         painelProdutos.getChildren().clear();
-        for (Produto produto : repositorio.getProdutos()) {
+        for (Produto produto : repositorio.listarProdutos()) {
             painelProdutos.getChildren().add(criarCartao(produto));
         }
-        if (repositorio.getProdutos().isEmpty()) {
+        if (repositorio.listarProdutos().isEmpty()) {
             // Relação vazia mostra um aviso no lugar dos cartões (mesma ideia da RN012)
             Label vazio = new Label("Ainda não há produtos cadastrados");
             vazio.getStyleClass().add("descricao-opcao");
             painelProdutos.getChildren().add(vazio);
         }
-        rotuloContador.setText(Formatador.contador(repositorio.getProdutos().size(),
+        rotuloContador.setText(Formatador.contador(repositorio.listarProdutos().size(),
                 "produto cadastrado", "produtos cadastrados"));
     }
 }
