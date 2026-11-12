@@ -28,6 +28,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -273,7 +275,7 @@ public class TesteTelasBDD {
         // ================================================================ H14
         titulo("H14 — Criar lista de compras");
         clicar("btnCriarLista");
-        selecionar("comboProduto", produto("Arroz branco 5kg"));
+        escolherProduto("Arroz branco 5kg");
         digitar("campoQuantidade", "2");
         clicar("btnAdicionarItem");
         verificar("c3: sem lista selecionada", "Selecione a lista de compras", ultimaMensagem());
@@ -488,6 +490,13 @@ public class TesteTelasBDD {
         ((TextField) q(id)).setText(texto);
     }
 
+    /** Pesquisa o produto pelo nome e tecla Enter para selecioná-lo. */
+    private static void escolherProduto(String descricao) {
+        TextField campo = q("campoPesquisaProduto");
+        campo.setText(descricao);
+        campo.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
+    }
+
     private static void marcar(String id, boolean marcado) {
         ((ToggleButton) q(id)).setSelected(marcado);
     }
@@ -563,7 +572,7 @@ public class TesteTelasBDD {
     }
 
     private static void incluirItem(String produto, String quantidade, String valor) {
-        selecionar("comboProduto", produto(produto));
+        escolherProduto(produto);
         digitar("campoQuantidade", quantidade);
         digitar("campoValorUnitario", valor);
         clicar("btnAdicionarItem");

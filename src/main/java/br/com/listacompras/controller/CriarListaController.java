@@ -17,11 +17,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
+import javafx.stage.Popup;
 import javafx.util.StringConverter;
 
 import java.net.URL;
@@ -41,7 +44,6 @@ public class CriarListaController implements Initializable {
     @FXML private ComboBox<ListaCompra> comboLista;
     @FXML private ComboBox<Estabelecimento> comboEstabelecimento;
     @FXML private TextField campoPesquisaProduto;
-    @FXML private ComboBox<Produto> comboProduto;
     @FXML private TextField campoQuantidade;
     @FXML private TextField campoValorUnitario;
     @FXML private Button btnAdicionarItem;
@@ -69,8 +71,16 @@ public class CriarListaController implements Initializable {
 
     private final Repositorio repositorio = new Repositorio();
 
-    // Produtos mostrados na lista suspensa, filtrados pelo campo de pesquisa
+    // Produtos encontrados pela pesquisa e a janelinha que os mostra abaixo do campo
     private FilteredList<Produto> produtosFiltrados;
+    private final ListView<Produto> listaResultados = new ListView<>();
+    private final Popup popupResultados = new Popup();
+
+    // Produto escolhido na pesquisa (nulo enquanto nenhum foi clicado)
+    private Produto produtoSelecionado;
+
+    // Evita que, ao escrever o nome do produto escolhido no campo, a pesquisa recomece
+    private boolean preenchendoCampo;
 
     // Item que está sendo editado (nulo quando estamos incluindo um novo)
     private ItemLista itemEmEdicao;
@@ -93,13 +103,7 @@ public class CriarListaController implements Initializable {
         comboEstabelecimento.setItems(FXCollections.observableArrayList(estabelecimentos));
         comboEstabelecimento.setValue(SEM_ESTABELECIMENTO);
 
-        comboProduto.setConverter(new StringConverter<>() {
-            @Override public String toString(Produto p) { return p == null ? "" : p.getDescricao(); }
-            @Override public Produto fromString(String string) { return null; }
-        });
         produtosFiltrados = new FilteredList<>(FXCollections.observableArrayList(repositorio.listarProdutos()));
-        comboProduto.setItems(produtosFiltrados);
-        comboProduto.setPlaceholder(new Label("Nenhum produto encontrado"));
         configurarPesquisaProduto();
 
         // Trocar a lista ou o estabelecimento muda os itens mostrados (RN058)
@@ -141,42 +145,139 @@ public class CriarListaController implements Initializable {
     }
 
     /**
-     * Pesquisa de produto: o texto digitado filtra a lista suspensa
-     * (sem diferenciar maiúsculas e acentos; todas as palavras precisam aparecer).
-     * Com um único resultado o produto já fica selecionado; Enter escolhe o
-     * primeiro resultado e a seta para baixo abre a lista filtrada.
+     * Pesquisa de produto: ao digitar, os produtos encontrados aparecem logo
+     * abaixo do campo (sem diferenciar maiúsculas e acentos; todas as palavras
+     * precisam aparecer). Clicar em um produto o seleciona. Pelo teclado, as
+     * setas percorrem os resultados, Enter seleciona e Esc fecha a lista.
+     * Clicar no campo vazio mostra todos os produtos.
      */
     private void configurarPesquisaProduto() {
+        listaResultados.setItems(produtosFiltrados);
+        listaResultados.setPlaceholder(new Label("Nenhum produto encontrado"));
+        listaResultados.setFocusTraversable(false);
+        listaResultados.setPrefHeight(200);
+        listaResultados.setCellFactory(lista -> new ListCell<>() {
+            @Override
+            protected void updateItem(Produto produto, boolean vazio) {
+                super.updateItem(produto, vazio);
+                setText(vazio || produto == null ? null : produto.getDescricao());
+            }
+        });
+        listaResultados.setOnMouseClicked(evento -> {
+            Produto clicado = listaResultados.getSelectionModel().getSelectedItem();
+            if (clicado != null) {
+                selecionarProduto(clicado);
+            }
+        });
+        popupResultados.getContent().add(listaResultados);
+        popupResultados.setAutoHide(true);
+
         campoPesquisaProduto.textProperty().addListener((propriedade, antes, depois) -> {
-            String[] palavras = normalizar(depois).split("\\s+");
-            produtosFiltrados.setPredicate(produto -> {
-                String descricao = normalizar(produto.getDescricao());
-                for (String palavra : palavras) {
-                    if (!descricao.contains(palavra)) return false;
-                }
-                return true;
-            });
-            if (!normalizar(depois).isEmpty() && produtosFiltrados.size() == 1) {
-                comboProduto.setValue(produtosFiltrados.get(0));
+            if (preenchendoCampo) return;
+            produtoSelecionado = null;
+            filtrarProdutos(depois);
+            if (normalizar(depois).isEmpty()) {
+                popupResultados.hide();
+            } else {
+                mostrarResultados();
             }
         });
 
-        campoPesquisaProduto.setOnKeyPressed(evento -> {
-            if (evento.getCode() == KeyCode.ENTER) {
-                if (!produtosFiltrados.isEmpty()) {
-                    if (comboProduto.getValue() == null || !produtosFiltrados.contains(comboProduto.getValue())) {
-                        comboProduto.setValue(produtosFiltrados.get(0));
-                    }
-                    campoQuantidade.requestFocus();
-                    campoQuantidade.selectAll();
-                }
-                evento.consume();
-            } else if (evento.getCode() == KeyCode.DOWN) {
-                comboProduto.requestFocus();
-                comboProduto.show();
-                evento.consume();
+        campoPesquisaProduto.setOnMouseClicked(evento -> {
+            if (!popupResultados.isShowing()) {
+                filtrarProdutos(produtoSelecionado == null ? campoPesquisaProduto.getText() : "");
+                mostrarResultados();
             }
         });
+
+        campoPesquisaProduto.focusedProperty().addListener((propriedade, antes, focado) -> {
+            if (!focado) popupResultados.hide();
+        });
+
+        campoPesquisaProduto.setOnKeyPressed(evento -> {
+            int atual = listaResultados.getSelectionModel().getSelectedIndex();
+            switch (evento.getCode()) {
+                case DOWN -> {
+                    if (!popupResultados.isShowing()) mostrarResultados();
+                    else if (atual < produtosFiltrados.size() - 1) destacarResultado(atual + 1);
+                    evento.consume();
+                }
+                case UP -> {
+                    if (atual > 0) destacarResultado(atual - 1);
+                    evento.consume();
+                }
+                case ENTER -> {
+                    Produto escolhido = produtoParaEnter();
+                    if (escolhido != null) selecionarProduto(escolhido);
+                    evento.consume();
+                }
+                case ESCAPE -> popupResultados.hide();
+                default -> { }
+            }
+        });
+    }
+
+    private void filtrarProdutos(String texto) {
+        String[] palavras = normalizar(texto).split("\\s+");
+        produtosFiltrados.setPredicate(produto -> {
+            String descricao = normalizar(produto.getDescricao());
+            for (String palavra : palavras) {
+                if (!descricao.contains(palavra)) return false;
+            }
+            return true;
+        });
+    }
+
+    /** Abre a lista de resultados logo abaixo do campo, com a mesma largura dele. */
+    private void mostrarResultados() {
+        if (campoPesquisaProduto.getScene() == null || campoPesquisaProduto.getScene().getWindow() == null) return;
+        destacarResultado(produtosFiltrados.isEmpty() ? -1 : 0);
+        listaResultados.setPrefWidth(campoPesquisaProduto.getWidth());
+        Bounds limites = campoPesquisaProduto.localToScreen(campoPesquisaProduto.getBoundsInLocal());
+        if (limites == null) return;
+        if (popupResultados.isShowing()) {
+            popupResultados.setX(limites.getMinX());
+            popupResultados.setY(limites.getMaxY());
+        } else {
+            popupResultados.show(campoPesquisaProduto, limites.getMinX(), limites.getMaxY());
+        }
+    }
+
+    private void destacarResultado(int indice) {
+        if (indice < 0) {
+            listaResultados.getSelectionModel().clearSelection();
+        } else {
+            listaResultados.getSelectionModel().select(indice);
+            listaResultados.scrollTo(indice);
+        }
+    }
+
+    /** Enter: o produto com o nome exato digitado; senão o destacado na lista. */
+    private Produto produtoParaEnter() {
+        if (produtoSelecionado != null) return produtoSelecionado;
+        String digitado = normalizar(campoPesquisaProduto.getText());
+        for (Produto p : produtosFiltrados) {
+            if (normalizar(p.getDescricao()).equals(digitado)) return p;
+        }
+        Produto destacado = listaResultados.getSelectionModel().getSelectedItem();
+        if (destacado != null) return destacado;
+        return produtosFiltrados.isEmpty() ? null : produtosFiltrados.get(0);
+    }
+
+    /** Escolhe o produto: escreve o nome no campo, fecha a lista e vai para a quantidade. */
+    private void selecionarProduto(Produto produto) {
+        produtoSelecionado = produto;
+        preencherCampoPesquisa(produto.getDescricao());
+        popupResultados.hide();
+        campoQuantidade.requestFocus();
+        campoQuantidade.selectAll();
+    }
+
+    private void preencherCampoPesquisa(String texto) {
+        preenchendoCampo = true;
+        campoPesquisaProduto.setText(texto);
+        preenchendoCampo = false;
+        filtrarProdutos("");
     }
 
     /** Minúsculas, sem acentos e sem espaços nas pontas, para comparar textos. */
@@ -205,7 +306,7 @@ public class CriarListaController implements Initializable {
             if (lista == null) {
                 throw new IllegalArgumentException("Selecione a lista de compras");
             }
-            Produto produto = comboProduto.getValue();
+            Produto produto = produtoSelecionado;
             if (produto == null) {
                 throw new IllegalArgumentException("Selecione o produto");
             }
@@ -240,8 +341,8 @@ public class CriarListaController implements Initializable {
     /** Coloca quantidade e valor do item nos campos e troca o botão para "Salvar item" (RF016). */
     private void editarItem(ItemLista item) {
         itemEmEdicao = item;
-        campoPesquisaProduto.clear();
-        comboProduto.setValue(repositorio.buscarProdutoPorId(item.getIdProduto()));
+        produtoSelecionado = repositorio.buscarProdutoPorId(item.getIdProduto());
+        preencherCampoPesquisa(produtoSelecionado == null ? "" : produtoSelecionado.getDescricao());
         campoQuantidade.setText(Formatador.quantidade(item.getQuantidade()).replace(".", ""));
         campoValorUnitario.setText(item.getValorUnitario() == null
                 ? "" : String.format(Locale.ROOT, "%.2f", item.getValorUnitario()).replace('.', ','));
@@ -249,7 +350,6 @@ public class CriarListaController implements Initializable {
         comboLista.setDisable(true);
         comboEstabelecimento.setDisable(true);
         campoPesquisaProduto.setDisable(true);
-        comboProduto.setDisable(true);
         btnAdicionarItem.setText("Salvar item");
         mostrarCancelar(true);
         campoQuantidade.requestFocus();
@@ -323,15 +423,15 @@ public class CriarListaController implements Initializable {
 
     private void limparFormulario() {
         itemEmEdicao = null;
-        campoPesquisaProduto.clear();
-        comboProduto.setValue(null);
+        produtoSelecionado = null;
+        preencherCampoPesquisa("");
+        popupResultados.hide();
         campoQuantidade.setText("1");
         campoValorUnitario.clear();
 
         comboLista.setDisable(false);
         comboEstabelecimento.setDisable(false);
         campoPesquisaProduto.setDisable(false);
-        comboProduto.setDisable(false);
         btnAdicionarItem.setText("+ Adicionar item");
         mostrarCancelar(false);
     }

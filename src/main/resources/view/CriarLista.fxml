@@ -54,9 +54,8 @@
     <HBox styleClass="cartao" spacing="16" alignment="BOTTOM_LEFT">
         <VBox spacing="6" HBox.hgrow="ALWAYS">
             <Label text="Produto *" styleClass="rotulo-campo" />
-            <!-- Filtra a lista de produtos enquanto digita (Enter escolhe o primeiro) -->
+            <!-- Ao digitar, os produtos encontrados aparecem logo abaixo; clique para selecionar -->
             <TextField fx:id="campoPesquisaProduto" promptText="Pesquisar produto..." maxWidth="Infinity" />
-            <ComboBox fx:id="comboProduto" promptText="Selecione o produto" maxWidth="Infinity" />
         </VBox>
         <VBox spacing="6">
             <Label text="Quantidade *" styleClass="rotulo-campo" />
