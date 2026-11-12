@@ -11,6 +11,7 @@ import br.com.listacompras.util.Mensagem;
 import br.com.listacompras.util.Navegador;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,9 +21,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.util.StringConverter;
 
 import java.net.URL;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +40,7 @@ public class CriarListaController implements Initializable {
 
     @FXML private ComboBox<ListaCompra> comboLista;
     @FXML private ComboBox<Estabelecimento> comboEstabelecimento;
+    @FXML private TextField campoPesquisaProduto;
     @FXML private ComboBox<Produto> comboProduto;
     @FXML private TextField campoQuantidade;
     @FXML private TextField campoValorUnitario;
@@ -65,6 +69,9 @@ public class CriarListaController implements Initializable {
 
     private final Repositorio repositorio = new Repositorio();
 
+    // Produtos mostrados na lista suspensa, filtrados pelo campo de pesquisa
+    private FilteredList<Produto> produtosFiltrados;
+
     // Item que está sendo editado (nulo quando estamos incluindo um novo)
     private ItemLista itemEmEdicao;
 
@@ -90,7 +97,10 @@ public class CriarListaController implements Initializable {
             @Override public String toString(Produto p) { return p == null ? "" : p.getDescricao(); }
             @Override public Produto fromString(String string) { return null; }
         });
-        comboProduto.setItems(FXCollections.observableArrayList(repositorio.listarProdutos()));
+        produtosFiltrados = new FilteredList<>(FXCollections.observableArrayList(repositorio.listarProdutos()));
+        comboProduto.setItems(produtosFiltrados);
+        comboProduto.setPlaceholder(new Label("Nenhum produto encontrado"));
+        configurarPesquisaProduto();
 
         // Trocar a lista ou o estabelecimento muda os itens mostrados (RN058)
         comboLista.valueProperty().addListener((propriedade, antes, depois) -> atualizarTabela());
@@ -128,6 +138,54 @@ public class CriarListaController implements Initializable {
                 }
             }
         }
+    }
+
+    /**
+     * Pesquisa de produto: o texto digitado filtra a lista suspensa
+     * (sem diferenciar maiúsculas e acentos; todas as palavras precisam aparecer).
+     * Com um único resultado o produto já fica selecionado; Enter escolhe o
+     * primeiro resultado e a seta para baixo abre a lista filtrada.
+     */
+    private void configurarPesquisaProduto() {
+        campoPesquisaProduto.textProperty().addListener((propriedade, antes, depois) -> {
+            String[] palavras = normalizar(depois).split("\\s+");
+            produtosFiltrados.setPredicate(produto -> {
+                String descricao = normalizar(produto.getDescricao());
+                for (String palavra : palavras) {
+                    if (!descricao.contains(palavra)) return false;
+                }
+                return true;
+            });
+            if (!normalizar(depois).isEmpty() && produtosFiltrados.size() == 1) {
+                comboProduto.setValue(produtosFiltrados.get(0));
+            }
+        });
+
+        campoPesquisaProduto.setOnKeyPressed(evento -> {
+            if (evento.getCode() == KeyCode.ENTER) {
+                if (!produtosFiltrados.isEmpty()) {
+                    if (comboProduto.getValue() == null || !produtosFiltrados.contains(comboProduto.getValue())) {
+                        comboProduto.setValue(produtosFiltrados.get(0));
+                    }
+                    campoQuantidade.requestFocus();
+                    campoQuantidade.selectAll();
+                }
+                evento.consume();
+            } else if (evento.getCode() == KeyCode.DOWN) {
+                comboProduto.requestFocus();
+                comboProduto.show();
+                evento.consume();
+            }
+        });
+    }
+
+    /** Minúsculas, sem acentos e sem espaços nas pontas, para comparar textos. */
+    private static String normalizar(String texto) {
+        if (texto == null) return "";
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .trim();
     }
 
     private String obterDescricaoProduto(ItemLista item) {
@@ -182,6 +240,7 @@ public class CriarListaController implements Initializable {
     /** Coloca quantidade e valor do item nos campos e troca o botão para "Salvar item" (RF016). */
     private void editarItem(ItemLista item) {
         itemEmEdicao = item;
+        campoPesquisaProduto.clear();
         comboProduto.setValue(repositorio.buscarProdutoPorId(item.getIdProduto()));
         campoQuantidade.setText(Formatador.quantidade(item.getQuantidade()).replace(".", ""));
         campoValorUnitario.setText(item.getValorUnitario() == null
@@ -189,6 +248,7 @@ public class CriarListaController implements Initializable {
 
         comboLista.setDisable(true);
         comboEstabelecimento.setDisable(true);
+        campoPesquisaProduto.setDisable(true);
         comboProduto.setDisable(true);
         btnAdicionarItem.setText("Salvar item");
         mostrarCancelar(true);
@@ -263,12 +323,14 @@ public class CriarListaController implements Initializable {
 
     private void limparFormulario() {
         itemEmEdicao = null;
+        campoPesquisaProduto.clear();
         comboProduto.setValue(null);
         campoQuantidade.setText("1");
         campoValorUnitario.clear();
 
         comboLista.setDisable(false);
         comboEstabelecimento.setDisable(false);
+        campoPesquisaProduto.setDisable(false);
         comboProduto.setDisable(false);
         btnAdicionarItem.setText("+ Adicionar item");
         mostrarCancelar(false);
