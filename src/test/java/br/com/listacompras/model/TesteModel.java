@@ -16,9 +16,13 @@ public class TesteModel {
     private static int falhou = 0;
 
     public static void main(String[] args) {
+        // Usa um arquivo temporário para não apagar nem alterar dados/lista_compras.json
         try {
-            java.nio.file.Files.deleteIfExists(java.nio.file.Path.of("dados", "lista_compras.json"));
-        } catch (Exception e) {}
+            java.nio.file.Path pasta = java.nio.file.Files.createTempDirectory("lista_compras_model");
+            Repositorio.usarArquivo(pasta.resolve("lista_compras.json"));
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
 
         Repositorio repo = new Repositorio();
         repo.inicializar();

@@ -17,10 +17,20 @@ import java.util.Objects;
 
 public class Repositorio {
 
-    private static final Path ARQUIVO = Path.of("dados", "lista_compras.json");
+    private static final Path ARQUIVO_PADRAO = Path.of("dados", "lista_compras.json");
+
+    // Arquivo usado por todas as instâncias. Os testes trocam por um arquivo
+    // temporário para não alterar os dados reais do sistema.
+    private static volatile Path ARQUIVO = ARQUIVO_PADRAO;
+
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public Repositorio() {
+    }
+
+    /** Define o arquivo de dados usado por todos os repositórios (usado pelos testes). */
+    public static void usarArquivo(Path arquivo) {
+        ARQUIVO = Objects.requireNonNull(arquivo);
     }
 
     public void inicializar() {

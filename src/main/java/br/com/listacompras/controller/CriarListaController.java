@@ -281,11 +281,11 @@ public class CriarListaController implements Initializable {
 
     private void atualizarTabela() {
         ListaCompra lista = comboLista.getValue();
+        Estabelecimento est = estabelecimentoEscolhido();
         List<ItemLista> itens = (lista == null)
                 ? new ArrayList<>()
                 : repositorio.listarItensPorListaEEstabelecimento(lista.getId(),
-                    (estabelecimentoEscolhido() == null || estabelecimentoEscolhido() == SEM_ESTABELECIMENTO)
-                        ? null : estabelecimentoEscolhido().getId());
+                    est == null ? null : est.getId());
 
         tabelaItens.setItems(FXCollections.observableArrayList(itens));
         tabelaItens.refresh();
@@ -293,12 +293,9 @@ public class CriarListaController implements Initializable {
         rotuloItens.setText(lista == null ? "Itens da lista" : "Itens da lista — " + lista.getNome());
         rotuloContador.setText(Formatador.contador(itens.size(), "item", "itens"));
 
-        List<ItemLista> itensDaLista = (lista == null)
-                ? new ArrayList<>()
-                : repositorio.listarItensPorLista(lista.getId());
-
-        rotuloTotalItens.setText(Formatador.quantidade(somarQuantidades(itensDaLista)));
-        rotuloValorTotal.setText(Formatador.moeda(somarValores(itensDaLista)));
+        // Os totalizadores somam somente os itens exibidos na tabela (lista + estabelecimento)
+        rotuloTotalItens.setText(Formatador.quantidade(somarQuantidades(itens)));
+        rotuloValorTotal.setText(Formatador.moeda(somarValores(itens)));
     }
 
     private double somarQuantidades(List<ItemLista> itens) {

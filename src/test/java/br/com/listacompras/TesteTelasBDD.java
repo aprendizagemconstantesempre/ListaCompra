@@ -68,6 +68,7 @@ public class TesteTelasBDD {
     public static void main(String[] args) throws Exception {
         Path pasta = Files.createTempDirectory("lista_compras_teste");
         Path arquivo = pasta.resolve("lista_compras.json");
+        Repositorio.usarArquivo(arquivo);
 
         Platform.startup(() -> {
             Timeline respondedor = new Timeline(new KeyFrame(Duration.millis(50), evento -> responderJanelas()));
